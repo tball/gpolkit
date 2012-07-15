@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<node name="/org/gnome/gpolkit/helper">
+  <interface name="org.gnome.gpolkit.helper">
+    <method name="GetImplicitPolicies">
+      <arg type="aa{sv}" name="x" direction="out" />
+    </method>
+  </interface>
+</node>
