@@ -1,0 +1,6 @@
+namespace GPolkit.Common {
+	public class Ressources {
+		public static const string DATA_DIR = """@GPOLKIT_FULL_DATADIR@""";
+		public static const string ACTION_DIR = """@POLKIT_ACTIONDIR@""";
+	}
+}

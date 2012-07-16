@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.gnome.gpolkit.helper
+Exec=@CMAKE_INSTALL_FULL_LIBEXECDIR@/gpolkithelper
+User=root

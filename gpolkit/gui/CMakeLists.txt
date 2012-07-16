@@ -1,0 +1,3 @@
+
+
+install(FILES MainWindow.ui DESTINATION ${GPOLKIT_DATADIR})
