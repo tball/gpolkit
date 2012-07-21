@@ -1,22 +1,132 @@
+/**
+ * GPolkit is a gtk based polkit authorization manager.
+ * Copyright (C) 2012  Thomas Balling Sørensen
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ **/
+
 using Gtk;
 using Gee;
 using GPolkit.Common;
 
 namespace GPolkit.Gui
 {
-	public class TreeStoreProxy : TreeStore {
+	public class TreeStoreProxy : TreeStore 
+	{
+		public string FilterString {get; set; default="";}
+		
 		public enum ColumnTypes
 		{
 			ICON = 0,
 			GROUP_ID,
 			DESCRIPTION,
-			ACTION_REF
+			ACTION_REF,
 		}
+		
+		public TreeModelFilter TreeStoreFilter { get; private set; }
 	
-		public TreeStoreProxy() {
+		public TreeStoreProxy() 
+		{
+			TreeStoreFilter = new TreeModelFilter(this, null);
+			TreeStoreFilter.set_visible_func(visibility_func);
 			set_column_types(new Type[] {typeof(string), typeof (string), typeof (string), typeof(GActionDescriptor)});
 			
+			// Create bindings
+			this.notify["FilterString"].connect((sender) => {TreeStoreFilter.refilter();});
 		}
+
+		public TreeModel get_filtered_tree_model()
+		{
+			return TreeStoreFilter;
+		}
+
+		private bool visibility_func(TreeModel model, TreeIter iter)
+		{
+			if (FilterString == "")
+			{
+				// Search aborted
+				return true;	
+			}
+			
+			//
+			var parent_contains_string = parent_contains_string(FilterString, new int [] { ColumnTypes.GROUP_ID, ColumnTypes.DESCRIPTION }, iter);
+			if (parent_contains_string) {
+				return true;
+			}
+			
+			// Search if current TreeIter or any of its childs contains the search string
+			return current_or_children_contains_string(FilterString, new int [] { ColumnTypes.GROUP_ID, ColumnTypes.DESCRIPTION }, iter);
+		}
+		
+		private bool parent_contains_string(string search_string, int [] columns, TreeIter child)
+		{
+			TreeIter parent;
+			if (!iter_parent(out parent, child)) {
+				return false;
+			}
+
+			foreach (var column in columns) {
+				Value parent_value;
+				get_value(parent, column, out parent_value);
+				var parent_string = parent_value.get_string();
+			
+				if (parent_string != null) {
+					if (parent_string.contains(search_string)) {
+						return true;
+					}
+				}
+			}
+			
+			var parent_containts_string = parent_contains_string(search_string, columns, parent);
+			if (parent_containts_string) {
+				return true;
+			}
+			
+			return false;
+		}
+		
+		private bool current_or_children_contains_string(string search_string, int [] columns, TreeIter parent)
+		{
+			// See if parent contains string
+			foreach (var column in columns) {
+				Value parent_value;
+				get_value(parent, column, out parent_value);
+				var parent_string = parent_value.get_string();
+			
+				if (parent_string != null) {
+					if (parent_string.contains(search_string)) {
+						return true;
+					}
+				}
+			}
+				
+			// Search children
+			TreeIter child_iter;
+			if (iter_n_children(parent) > 0) {
+				iter_children(out child_iter, parent);
+				do {
+					var string_found_in_child = current_or_children_contains_string(search_string, columns, child_iter);
+					if (string_found_in_child)
+						return true;
+				} while (iter_next(ref child_iter));
+			}
+			
+			// We did not find the string
+			return false;
+		}
+		
 
 		public void policies_changed(Object prop, ParamSpec spec) {
 			Value prop_value = Value(spec.value_type);

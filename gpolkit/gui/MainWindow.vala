@@ -1,3 +1,22 @@
+/**
+ * GPolkit is a gtk based polkit authorization manager.
+ * Copyright (C) 2012  Thomas Balling Sørensen
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ **/
+ 
 using Gtk;
 using Gee;
 using GPolkit.Common;
@@ -22,14 +41,21 @@ namespace GPolkit.Gui
 		public ArrayList<GActionDescriptor> actions {get; set; default = null;}
 		public string test { get; set; default = null;}
 		
-
 		[CCode(instance_pos=-1)]
-		public void on_button_fetch_policies_clicked (Button source) {
-			tree_store_proxy.update_policies(actions);
+		public void search_entry_text_changed(Object sender)
+		{
+			var search_entry = sender as Entry;
+			if (search_entry == null) {
+				stdout.printf("Sender not entry!\n");
+				return;
+			}
+		
+			// Lets filter our treeview
+			tree_store_proxy.FilterString = search_entry.text;
 		}
 
 		[CCode(instance_pos=-1)]
-		public void treeview_selection_changed(Object sender)//TreePath path, TreeViewColumn col)
+		public void treeview_selection_changed(Object sender)
 		{
 			TreeIter selected_iter;
 			TreeModel model;
@@ -111,7 +137,7 @@ namespace GPolkit.Gui
 			tree_store_proxy = new TreeStoreProxy();
 
 			// Set our treeView model
-			tree_view.set_model(tree_store_proxy);
+			tree_view.set_model(tree_store_proxy.get_filtered_tree_model());
 
 			// Init helper
 			try {
@@ -135,10 +161,6 @@ namespace GPolkit.Gui
 		}
 
 		public MainWindow() {
-			this.notify.connect((sender, property) => {
-					stdout.printf ("Property '%s' changed\n", property.name);
-				});
-		
 			// Load ui file
 			this.view = build_ui();
 
