@@ -141,7 +141,7 @@ namespace GPolkit.Gui
 
 			// Init helper
 			try {
-				gpolkit_helper = Bus.get_proxy_sync (BusType.SESSION, "org.gnome.gpolkit.helper",
+				gpolkit_helper = Bus.get_proxy_sync (BusType.SYSTEM, "org.gnome.gpolkit.helper",
 													"/org/gnome/gpolkit/helper");
 
 			} catch (IOError e) {
@@ -156,6 +156,7 @@ namespace GPolkit.Gui
 			});
 			
 			// Fetch policies
+			
 			HashTable<string,Variant>[] hash_tables = gpolkit_helper.get_implicit_policies ();
 			actions = GActionDescriptor.de_serialize_array(hash_tables);
 		}

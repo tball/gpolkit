@@ -60,14 +60,16 @@ namespace GPolkit.Gui
 				return true;	
 			}
 			
+			var lower_case_filter_string = FilterString.down();
+			
 			//
-			var parent_contains_string = parent_contains_string(FilterString, new int [] { ColumnTypes.GROUP_ID, ColumnTypes.DESCRIPTION }, iter);
+			var parent_contains_string = parent_contains_string(lower_case_filter_string, new int [] { ColumnTypes.GROUP_ID, ColumnTypes.DESCRIPTION }, iter);
 			if (parent_contains_string) {
 				return true;
 			}
 			
 			// Search if current TreeIter or any of its childs contains the search string
-			return current_or_children_contains_string(FilterString, new int [] { ColumnTypes.GROUP_ID, ColumnTypes.DESCRIPTION }, iter);
+			return current_or_children_contains_string(lower_case_filter_string, new int [] { ColumnTypes.GROUP_ID, ColumnTypes.DESCRIPTION }, iter);
 		}
 		
 		private bool parent_contains_string(string search_string, int [] columns, TreeIter child)
@@ -83,6 +85,7 @@ namespace GPolkit.Gui
 				var parent_string = parent_value.get_string();
 			
 				if (parent_string != null) {
+					parent_string = parent_string.down();
 					if (parent_string.contains(search_string)) {
 						return true;
 					}
@@ -106,6 +109,7 @@ namespace GPolkit.Gui
 				var parent_string = parent_value.get_string();
 			
 				if (parent_string != null) {
+					parent_string = parent_string.down();
 					if (parent_string.contains(search_string)) {
 						return true;
 					}

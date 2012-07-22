@@ -18,7 +18,7 @@ ${CMAKE_SOURCE_DIR}/gpolkithelper/polkit-1.0.vapi
 ${CMAKE_BINARY_DIR}/common/gpolkitcommon.vapi
 )
 
-set(CMAKE_INSTALL_DBUS_SERVICESDIR ${CMAKE_INSTALL_DATADIR}/dbus-1/services)
+set(CMAKE_INSTALL_DBUS_SERVICESDIR ${CMAKE_INSTALL_DATADIR}/dbus-1/system-services)
 set(CMAKE_INSTALL_DBUS_INTERFACESDIR ${CMAKE_INSTALL_DATADIR}/dbus-1/interfaces)
 
 # Borrowed from the kcm polkit module
@@ -42,5 +42,6 @@ target_link_libraries(gpolkithelper gpolkitcommon ${GEE_LIBRARIES} ${DBUS_LIBRAR
 install(TARGETS gpolkithelper DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
 install(FILES org.gnome.gpolkit.helper.conf DESTINATION /${CMAKE_INSTALL_SYSCONFDIR}/dbus-1/system.d)
 install(FILES org.gnome.gpolkit.helper.xml DESTINATION ${CMAKE_INSTALL_DBUS_INTERFACESDIR} )
+install(FILES org.gnome.gpolkit.policy DESTINATION ${CMAKE_INSTALL_DATADIR}/polkit-1/actions/)
 dbus_add_activation_system_service(org.gnome.gpolkit.helper.service.in)
 

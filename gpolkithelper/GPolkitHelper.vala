@@ -22,24 +22,39 @@ using Xml;
 using Polkit;
 using GPolkit.Common;
 
-namespace GPolkit.Helper {
+namespace GPolkit.Helper 
+{
 	[DBus (name = "org.gnome.gpolkit.helper")]
-	public class GPolkitHelper : Object {
-		public HashTable<string,Variant>[] get_implicit_policies () {
-			// Grant permission
-
-			// Fetch policy file paths
-			// /var policy_file_paths = get_policy_file_paths();
-
-			// Parse the files
-			// /var policies = get_policies_from_xml_files(policy_file_paths);
-
+	public class GPolkitHelper : Object 
+	{
+		public HashTable<string,Variant>[] get_implicit_policies (BusName bus_name) throws GLib.Error {
 			Authority authority;
 			try {
 				authority = Authority.get_sync();
 			}
 			catch(GLib.Error err) {
 				throw new GPolkitHelperError.SOME_ERROR("Could not get the Authority object from polkit.");
+			}
+			
+			// Grant permission
+			Subject subject;
+			try {
+				subject = Polkit.SystemBusName.new(bus_name);
+			}
+			catch(GLib.Error err) {
+				throw new GPolkitHelperError.SOME_ERROR("Error received while getting the subject: ." + err.message);
+			}
+
+			AuthorizationResult result;
+			try {
+				result = authority.check_authorization_sync(subject, "org.gnome.gpolkit.readauthorizations", null, Polkit.CheckAuthorizationFlags.ALLOW_USER_INTERACTION, null);
+			}
+			catch(GLib.Error err) {
+				throw new GPolkitHelperError.SOME_ERROR("Error received while getting the result: ." + err.message);
+			}
+			
+			if (!result.get_is_authorized ()) {
+				throw new GPolkitHelperError.SOME_ERROR("Unautorized.");
 			}
 
 			GLib.List<Polkit.ActionDescription> action_descriptors;
@@ -78,10 +93,7 @@ namespace GPolkit.Helper {
 	}
 
 	void main() {
-		// var gpolkit_helper = new GPolkitHelper();
-		// var hashes = gpolkit_helper.get_implicit_policies () ;
-
-		Bus.own_name (BusType.SESSION, "org.gnome.gpolkit.helper", BusNameOwnerFlags.NONE,
+		Bus.own_name (BusType.SYSTEM, "org.gnome.gpolkit.helper", BusNameOwnerFlags.NONE,
 					  on_bus_aquired,
 					  () => {},
 					  () => stderr.printf ("Could not aquire name\n"));
