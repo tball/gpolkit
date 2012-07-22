@@ -86,6 +86,14 @@ namespace GPolkit.Common {
 			}
 			return action_descriptors;
 		}
+		
+		public static HashTable<string, Variant>[] serialize_array(ArrayList<GActionDescriptor> actions) {
+			var action_hashes = new HashTable<string, Variant>[actions.size];
+			for(var i = 0; i < actions.size; i++) {
+				action_hashes[i] = serialize(actions[i]);
+			}
+			return action_hashes;
+		}
 	}
 
 

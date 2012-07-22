@@ -63,6 +63,7 @@
                     <property name="halign">start</property>
                     <property name="valign">center</property>
                     <property name="use_action_appearance">False</property>
+                    <signal name="clicked" handler="gpolkit_gui_main_window_buttonapply_clicked" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="image1">
                         <property name="visible">True</property>

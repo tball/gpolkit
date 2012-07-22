@@ -4,5 +4,8 @@
     <method name="GetImplicitPolicies">
       <arg type="aa{sv}" name="x" direction="out" />
     </method>
+    <method name="SetImplicitPolicies">
+      <arg type="aa{sv}" name="implicit_policies" direction="in" />
+    </method>
   </interface>
 </node>

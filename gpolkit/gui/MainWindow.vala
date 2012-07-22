@@ -41,6 +41,14 @@ namespace GPolkit.Gui
 		public ArrayList<GActionDescriptor> actions {get; set; default = null;}
 		public string test { get; set; default = null;}
 		
+		
+		[CCode(instance_pos=-1)]
+		public void buttonapply_clicked(Object sender)
+		{
+			var hashes = GActionDescriptor.serialize_array(actions);
+			gpolkit_helper.set_implicit_policies (hashes);
+		}
+		
 		[CCode(instance_pos=-1)]
 		public void search_entry_text_changed(Object sender)
 		{
