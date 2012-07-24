@@ -120,10 +120,126 @@ namespace GPolkit.Helper
 		private void save_implicit_action(GActionDescriptor action) {
 			string action_path;
 			if (!find_action_path_from_id(action.identity, out action_path)) {
+				stdout.printf("Didn't find path for action %s\n", action.identity);
 				return;
 			}
 			
 			// TODO: Write the xml entry
+			Xml.Doc* doc = Parser.parse_file (action_path);
+			if (doc == null) {
+				stdout.printf("Doc == null for action %s\n", action.identity);
+				return;
+        	}
+			
+			// Get the root node. notice the dereferencing operator -> instead of .
+		    Xml.Node* root = doc->get_root_element ();
+		    if (root == null) {
+		        // Free the document manually before returning
+		        stdout.printf("Null root element, %s\n", action.identity);
+		        delete doc;
+		        return;
+		    }
+		    
+		    // Search for the first action node
+		    var action_node = first_child_node(root, "action");
+		    if (action_node == null) {
+		    	// Didn't find any action nodes
+		    	stdout.printf("Didn't find any action nodes for path %s action %s\n", action_path, action.identity);
+		    	return;
+		    }
+		    
+		    // Search for the action node with our action_id
+		    Xml.Attr* prop = action_node->properties;
+		    string attr_content = "";
+		    while (action_node != null) {
+		    	prop = action_node->properties;
+		    	attr_content = prop->children->content;
+		    	
+		    	if (prop->name == "id" && attr_content == action.identity) {
+		    		// Correct node found
+		    		break;
+		    	}
+		    	
+		    	action_node = next_sibling_node(action_node, "action");
+		    }
+		    
+		    if (action_node == null) {
+		    	stdout.printf("Didn't find the right action node for id %s path %s\n", action.identity, action_path);
+		    	return;
+		    }
+		    
+		    // Find the defaults node under the action node
+		    var defaults_node = first_child_node(action_node, "defaults");
+		    if (defaults_node == null) {
+		    	// Didn't find any defaults nodes
+		    	stdout.printf("Didn't find any defaults nodes for path %s action %s\n", action_path, action.identity);
+		    	return;
+		    }
+		    
+
+		    // Set or overwrite the 3 nodes
+		    add_child_node_with_content(defaults_node, "allow_any", action.allow_any);
+		    add_child_node_with_content(defaults_node, "allow_inactive", action.allow_inactive);
+		    add_child_node_with_content(defaults_node, "allow_active", action.allow_active);
+		    
+		    // Now save the doc
+		    doc->save_file(action_path);
+		    
+			// Manually cleanup the xml doc
+			delete doc;
+		}
+		
+		private void add_child_node_with_content(Xml.Node *parent, string child_name, string content) {
+			Xml.Ns* ns = new Xml.Ns (null, "", "foo");
+        	ns->type = Xml.ElementType.ELEMENT_NODE;
+		
+			var child_node = first_child_node(parent, child_name);
+		    if (child_node == null) {
+		    	// Create new child node
+		    	parent->new_text_child (ns, child_name, content);
+		    } else {
+		    	child_node->set_content(content);
+		    }
+		}
+		
+		private Xml.Node* next_sibling_node(Xml.Node *node, string searched_node_name) {
+			Xml.Node* sibling_node = node->next;
+			while (sibling_node != null) {
+				if (sibling_node->type != ElementType.ELEMENT_NODE) {
+					sibling_node = sibling_node->next;
+		            continue;
+		        }
+				
+				if (sibling_node->name == searched_node_name) {
+					return sibling_node;
+				}
+				sibling_node = sibling_node->next;
+			}
+			
+			return null;
+		}
+		
+		private Xml.Node* first_child_node(Xml.Node *parent_node, string searched_node_name) {
+		    // Loop over the passed node's children
+		    for (Xml.Node* iter = parent_node->children; iter != null; iter = iter->next) {
+		        // Spaces between tags are also nodes, discard them
+		        if (iter->type != ElementType.ELEMENT_NODE) {
+		            continue;
+		        }
+
+		        if (iter->name == searched_node_name) {
+		        	return iter;
+		        }
+
+		        // Followed by its children nodes
+		        var child_node = first_child_node (iter, searched_node_name);
+		        if (child_node != null) {
+		        	return child_node;
+		        }
+		    }
+		    
+		    // We didn't find anything in this node
+		    return null;
 		}
 	}
 
