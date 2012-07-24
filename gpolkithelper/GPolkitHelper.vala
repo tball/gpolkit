@@ -190,7 +190,7 @@ namespace GPolkit.Helper
 		}
 		
 		private void add_child_node_with_content(Xml.Node *parent, string child_name, string content) {
-			Xml.Ns* ns = new Xml.Ns (null, "", "foo");
+			Xml.Ns* ns = new Xml.Ns (null, "", "");
         	ns->type = Xml.ElementType.ELEMENT_NODE;
 		
 			var child_node = first_child_node(parent, child_name);
