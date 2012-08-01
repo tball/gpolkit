@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1.0/policyconfig.dtd">
+<policyconfig>
+  <vendor>GPolkit authorization settings</vendor>
+  <vendor_url>https://github.com/tball/gpolkit/</vendor_url>
+  <icon_name>emblem-readonly</icon_name>
+
+  <action id="org.gnome.gpolkit.readauthorizations">
+    <description>Read system authorizations</description>
+    <description xml:lang="da">Læs systemgodkendelser</description>
+    <message>Authorization is required to read system authorizations</message>
+    <message xml:lang="da">Godkendelse kræves for at læse systemgodkendelser</message>
+
+    <icon_name>polkit-icon-frobnicate</icon_name>
+    <vendor_url>https://github.com/tball/gpolkit/</vendor_url>
+	<icon_name>emblem-readonly</icon_name>
+
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+  </action>
+  
+  <action id="org.gnome.gpolkit.changeimplicitauthorizations">
+    <description>Change system authorizations</description>
+    <description xml:lang="da">Ændre systemgodkendelser</description>
+    <message>Authorization is required to change implicit system authorizations</message>
+    <message xml:lang="da">Godkendelse kræves for at ændre implicitte systemgodkendelser</message>
+
+    <icon_name>polkit-icon-frobnicate</icon_name>
+    <vendor_url>https://github.com/tball/gpolkit/</vendor_url>
+	<icon_name>emblem-readonly</icon_name>
+
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+  </action>
+</policyconfig> 

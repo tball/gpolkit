@@ -41,6 +41,42 @@ namespace GPolkit.Gui
 		public ArrayList<GActionDescriptor> actions {get; set; default = null;}
 		public string test { get; set; default = null;}
 		
+		[CCode(instance_pos=-1)]
+		public void implicit_action_changed(Object sender)
+		{
+			ComboBox combobox = sender as ComboBox;
+			if (combobox == null) {
+				return;
+			}
+			
+			if (combobox == combo_box_allow_any) {
+				var allow_any_impl = (Polkit.ImplicitAuthorization)combo_box_allow_any.get_active();
+				var allow_any_str = Polkit.ImplicitAuthorization.to_string(allow_any_impl);
+				
+				if (allow_any_str != currently_selected_action.allow_any) {
+					currently_selected_action.changed = "true";
+					currently_selected_action.allow_any = allow_any_str;
+				}
+			} else if (combobox == combo_box_allow_active) {
+				var allow_active_impl = (Polkit.ImplicitAuthorization)combo_box_allow_active.get_active();
+				var allow_active_str = Polkit.ImplicitAuthorization.to_string(allow_active_impl);
+				
+				if (allow_active_str != currently_selected_action.allow_active) {
+					currently_selected_action.changed = "true";
+					currently_selected_action.allow_active = allow_active_str;
+				}
+			} else if (combobox == combo_box_allow_inactive) {
+				var allow_inactive_impl = (Polkit.ImplicitAuthorization)combo_box_allow_inactive.get_active();
+				var allow_inactive_str = Polkit.ImplicitAuthorization.to_string(allow_inactive_impl);
+				
+				if (allow_inactive_str != currently_selected_action.allow_inactive) {
+					currently_selected_action.changed = "true";
+					currently_selected_action.allow_inactive = allow_inactive_str;
+				}
+			}
+			
+			
+		}
 		
 		[CCode(instance_pos=-1)]
 		public void buttonapply_clicked(Object sender)

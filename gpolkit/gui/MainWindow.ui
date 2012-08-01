@@ -261,6 +261,7 @@
                         <property name="hexpand">True</property>
                         <property name="model">liststore_authorizations</property>
                         <property name="id_column">0</property>
+                        <signal name="changed" handler="gpolkit_gui_main_window_implicit_action_changed" swapped="no"/>
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext2"/>
                           <attributes>
@@ -335,6 +336,7 @@
                         <property name="margin_bottom">5</property>
                         <property name="hexpand">True</property>
                         <property name="model">liststore_authorizations</property>
+                        <signal name="changed" handler="gpolkit_gui_main_window_implicit_action_changed" swapped="no"/>
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext3"/>
                           <attributes>
@@ -362,6 +364,7 @@
                         <property name="margin_bottom">5</property>
                         <property name="hexpand">True</property>
                         <property name="model">liststore_authorizations</property>
+                        <signal name="changed" handler="gpolkit_gui_main_window_implicit_action_changed" swapped="no"/>
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext4"/>
                           <attributes>

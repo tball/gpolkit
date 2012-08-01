@@ -83,9 +83,11 @@ namespace GPolkit.Helper
 			// De-serialize hashtable
 			var actions = GActionDescriptor.de_serialize_array(implicit_policies);
 			
-			// Save them
+			// Save them if changed
 			foreach (var action in actions) {
-				save_implicit_action(action);
+				if (action.changed == "true") {
+					save_implicit_action(action);
+				}
 			}
 		}
 		
@@ -190,7 +192,7 @@ namespace GPolkit.Helper
 		}
 		
 		private void add_child_node_with_content(Xml.Node *parent, string child_name, string content) {
-			Xml.Ns* ns = new Xml.Ns (null, "", "");
+			Xml.Ns* ns = new Xml.Ns (null, "", null);
         	ns->type = Xml.ElementType.ELEMENT_NODE;
 		
 			var child_node = first_child_node(parent, child_name);
