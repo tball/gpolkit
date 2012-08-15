@@ -14,6 +14,8 @@ SOURCES
 Environment.vala
 GActionDescriptor.vala
 GPolkitHelperInterface.vala
+AccountsInterface.vala
+UserFunctions.vala
 
 PACKAGES
 gee-1.0

@@ -141,7 +141,7 @@ namespace GPolkit.Gui
 			update_policies(policies);
 		}
 
-		public void update_policies(ArrayList<GActionDescriptor> actions) {
+		public void update_policies(Gee.List<GActionDescriptor> actions) {
 			clear();
 			
 			// Parse policies			
@@ -150,7 +150,7 @@ namespace GPolkit.Gui
 				
 				if (action_ids.length > 2) {
 					// We start at array index 1, in order to skip 'org'
-				    var first_action_id = action_ids[1];
+				    // var first_action_id = action_ids[1];
 				    insert_or_update(action_ids, action, null, 1);
 				} else if (action_ids.length > 1) {
 				    // although pretty weird and probably

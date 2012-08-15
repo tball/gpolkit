@@ -38,7 +38,7 @@ namespace GPolkit.Gui
 
 		public GActionDescriptor currently_selected_action { get; set; default = null;}
 		public Window view { get; set; default = null;}
-		public ArrayList<GActionDescriptor> actions {get; set; default = null;}
+		public Gee.List<GActionDescriptor> actions {get; set; default = null;}
 		public string test { get; set; default = null;}
 		
 		[CCode(instance_pos=-1)]
@@ -81,8 +81,21 @@ namespace GPolkit.Gui
 		[CCode(instance_pos=-1)]
 		public void buttonapply_clicked(Object sender)
 		{
-			var hashes = GActionDescriptor.serialize_array(actions);
-			gpolkit_helper.set_implicit_policies (hashes);
+			var changed_actions = new ArrayList<GActionDescriptor>();
+			foreach(var action in actions) {
+				if (action.changed == "true") {
+					changed_actions.add(action);
+				}
+			}
+			
+			var hashes = GActionDescriptor.serialize_array(changed_actions);
+			
+			try {
+				gpolkit_helper.set_implicit_policies(hashes);
+			}
+			catch(IOError err) {
+				stderr.printf("Could not save the implicit policies. Error %s\n", err.message);
+			}
 		}
 		
 		[CCode(instance_pos=-1)]
@@ -200,9 +213,22 @@ namespace GPolkit.Gui
 			});
 			
 			// Fetch policies
+			HashTable<string,Variant>[] hash_tables;
+			try {
+				hash_tables = gpolkit_helper.get_implicit_policies ();
+				actions = GActionDescriptor.de_serialize_array(hash_tables);
+			}
+			catch(IOError err) {
+				stderr.printf("Unable to get implicit policies. Error %s\n", err.message);
+			}
 			
-			HashTable<string,Variant>[] hash_tables = gpolkit_helper.get_implicit_policies ();
-			actions = GActionDescriptor.de_serialize_array(hash_tables);
+			// Fetch users
+			var user_paths = UserFunctions.get_users();
+			foreach (var user_path in user_paths)
+			{
+				var user_props = UserFunctions.get_user_properties(user_path);
+				stdout.printf("Read user: %s real name: %s icon file: %s\n", user_props.user_name, user_props.real_name, user_props.icon_file);
+			}
 		}
 
 		public MainWindow() {
