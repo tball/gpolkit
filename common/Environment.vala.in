@@ -21,5 +21,7 @@ namespace GPolkit.Common {
 	public class Ressources {
 		public static const string DATA_DIR = """@GPOLKIT_FULL_DATADIR@""";
 		public static const string ACTION_DIR = """@POLKIT_ACTIONDIR@""";
+		public static const string EXPLICIT_VAR_DIR = """@POLKIT_EXPLICIT_VAR_DIR@""";
+		public static const string EXPLICIT_ETC_DIR = """@POLKIT_EXPLICIT_ETC_DIR@""";
 	}
 }

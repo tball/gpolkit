@@ -26,14 +26,13 @@ namespace GPolkit.Gui
 	public class MainWindow : Object {
 		private TreeStoreProxy tree_store_proxy = null;
 		private TreeView tree_view = null;
-		private GPolkitHelper gpolkit_helper = null;
+		private IGPolkitHelper gpolkit_helper = null;
 		private ComboBox combo_box_allow_any = null;
 		private ComboBox combo_box_allow_active = null;
 		private ComboBox combo_box_allow_inactive = null;
 		private Label label_action_description = null;
 		private Label label_action_vendor = null;
 		private Label label_action_vendor_url = null;
-		
 		
 
 		public GActionDescriptor currently_selected_action { get; set; default = null;}
@@ -76,6 +75,22 @@ namespace GPolkit.Gui
 			}
 			
 			
+		}
+		
+		[CCode(instance_pos=-1)]
+		public void button_add_user_clicked(Object sender)
+		{
+			var user_window = new ActionWindow();
+			user_window.view.delete_event.connect(( sender, event) => {
+			     var closing_window = sender as Window;
+			     if (closing_window == null) {
+			          return false;
+			     }
+			     
+			     
+			     
+			     return false;
+			});
 		}
 		
 		[CCode(instance_pos=-1)]
@@ -166,17 +181,17 @@ namespace GPolkit.Gui
 		private Window build_ui() {
 			var builder = new Builder();
 			try {
-				builder.add_from_file(Ressources.DATA_DIR + """/MainWindow.ui""");
+				builder.add_from_file(Ressources.DATA_DIR + """/MainWindow.glade""");
 			}
 			catch(Error e) {
-				stdout.printf("Error compiling the MainWindow.ui: %s\n", e.message);
+				stdout.printf("Error compiling the MainWindow.glade: %s\n", e.message);
 			}
 
-			var window = builder.get_object("mainWindow") as Window;
+			var window = builder.get_object("main_window") as Window;
 
 
 			// Fetch fields from ui
-			tree_view = builder.get_object("treeviewPolicies") as TreeView;
+			tree_view = builder.get_object("treeview_policies") as TreeView;
 			combo_box_allow_any = builder.get_object("combobox_allow_any") as ComboBox;
 			combo_box_allow_active = builder.get_object("combobox_allow_active") as ComboBox;
 			combo_box_allow_inactive = builder.get_object("combobox_allow_inactive") as ComboBox;
@@ -221,6 +236,15 @@ namespace GPolkit.Gui
 			catch(IOError err) {
 				stderr.printf("Unable to get implicit policies. Error %s\n", err.message);
 			}
+			
+			try {
+				hash_tables = gpolkit_helper.get_explicit_policies ();
+				//actions = GActionDescriptor.de_serialize_array(hash_tables);
+			}
+			catch(IOError err) {
+				stderr.printf("Unable to get explicit policies. Error %s\n", err.message);
+			}
+			
 			
 			// Fetch users
 			var user_paths = UserFunctions.get_users();

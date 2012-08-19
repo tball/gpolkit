@@ -14,6 +14,7 @@ SOURCES
 main.vala
 Program.vala
 gui/MainWindow.vala
+gui/ActionWindow.vala
 gui/TreeStoreProxy.vala
 
 PACKAGES

@@ -25,7 +25,7 @@ using GPolkit.Common;
 namespace GPolkit.Helper 
 {
 	[DBus (name = "org.gnome.gpolkit.helper")]
-	public class GPolkitHelper : Object 
+	public class GPolkitHelper : Object
 	{
 		private bool grant_permission(string bus_name, string action_id, out string error) throws GLib.Error  {
 			AuthorizationResult result;
@@ -74,6 +74,20 @@ namespace GPolkit.Helper
 			return g_action_descriptors_hash_table;
 		}
 		
+		public HashTable<string,Variant>[] get_explicit_policies (BusName bus_name) throws GLib.Error {
+			string error_str;
+			if (!grant_permission(bus_name, "org.gnome.gpolkit.readauthorizations", out error_str)) {
+				throw new GPolkitHelperError.SOME_ERROR("Cannot read policies due to the following error: " + error_str);
+			}
+			
+			var explicit_policies = read_explicit_policies();
+			if (explicit_policies == null) {
+				return new HashTable<string,Variant>[0];
+			}
+			
+			return GActionDescriptor.serialize_array(explicit_policies);
+		}
+		
 		public void set_implicit_policies (HashTable<string,Variant>[] implicit_policies, BusName bus_name) throws GLib.Error {
 			string error_str;
 			if (!grant_permission(bus_name, "org.gnome.gpolkit.changeimplicitauthorizations", out error_str)) {
@@ -89,6 +103,96 @@ namespace GPolkit.Helper
 					save_implicit_action(action);
 				}
 			}
+		}
+		
+		public void set_explicit_policies (HashTable<string,Variant>[] explicit_policies, BusName bus_name) throws GLib.Error {
+			
+		}
+		
+		private Gee.List<GActionDescriptor> read_explicit_policies() {
+			var action_descriptors = new ArrayList<GActionDescriptor>();
+			
+			// Search for possible policy files
+			Gee.List<string> policy_paths = new ArrayList<string>();
+			var explicit_var_policy_paths = get_explicit_policy_file_paths(Ressources.EXPLICIT_VAR_DIR);
+			var explicit_etc_policy_paths = get_explicit_policy_file_paths(Ressources.EXPLICIT_ETC_DIR);
+			
+			if (explicit_var_policy_paths != null) {
+				policy_paths.add_all(explicit_var_policy_paths);
+			}
+			
+			if (explicit_etc_policy_paths != null) {
+				policy_paths.add_all(explicit_etc_policy_paths);
+			}
+			
+			// Parse the files
+			foreach(var path in policy_paths) {
+				var action = get_action_from_path(path);
+				if (action != null) {
+					action_descriptors.add(action);
+				}
+			}
+			
+			return action_descriptors;
+		}
+		
+		private GActionDescriptor? get_action_from_path(string path) {
+			var file = File.new_for_path (path);
+
+			if (!file.query_exists ()) {
+				stdout.printf ("File '%s' doesn't exist.\n", file.get_path());
+				return null;
+			}
+			
+			try {
+				// Open file for reading and wrap returned FileInputStream into a
+				// DataInputStream, so we can read line by line
+				var dis = new DataInputStream (file.read ());
+				string line;
+				// Read lines until end of file (null) is reached
+				while ((line = dis.read_line (null)) != null) {
+					stdout.printf ("%s\n", line);
+				}
+			} catch (GLib.Error e) {
+				stdout.printf ("Catched error while reading file: %s", e.message);
+			}
+			
+			return null;
+		}
+		
+		private Gee.List<string>? get_explicit_policy_file_paths(string search_path)
+		{
+			var policy_paths = new ArrayList<string>();
+			var search_file = File.new_for_path(search_path);
+			try {
+				var file_type = search_file.query_file_type(FileQueryInfoFlags.NONE);
+				if (file_type == FileType.DIRECTORY) {
+					var file_enumerator = search_file.enumerate_children(FileAttribute.STANDARD_NAME, FileQueryInfoFlags.NONE);
+					FileInfo file_info;
+					while ((file_info = file_enumerator.next_file ()) != null) {
+						var child_path = search_path + "/" + file_info.get_name();
+						// stdout.printf("Child path: %s\n", child_path);
+						var new_policy_paths = get_explicit_policy_file_paths(child_path);
+						
+						if (new_policy_paths != null) {
+							policy_paths.add_all(new_policy_paths);
+						}
+					}
+				}
+				else if (file_type == FileType.REGULAR) {
+					var file_name = search_file.query_info(FileAttribute.STANDARD_NAME, FileQueryInfoFlags.NONE).get_name();
+					string[] splitted_file_name = file_name.split(".");
+					if (splitted_file_name[splitted_file_name.length - 1] == "pkla") {
+						// stdout.printf("Adding %s file to the policy paths\n", search_path);
+						policy_paths.add(search_path);
+					}
+				}
+			}
+			catch (GLib.Error err) {
+				stdout.printf("Catched an error while parsing directory %s. Error: %s\n", search_path, err.message);
+				return null;
+			}
+			return policy_paths;
 		}
 		
 		private bool find_action_path_from_id(string action_id, out string action_path) {

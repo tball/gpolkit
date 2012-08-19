@@ -33,6 +33,8 @@ namespace GPolkit.Common {
 		public string allow_inactive { get; set; default = ""; }
 		public string allow_active { get; set; default = ""; }
 		public string changed { get; set; default = "false"; }
+		public string action_type { get; set; default = ""; }
+		public string user_names { get; set; default = ""; }
 
 		public GActionDescriptor(ActionDescription ? action_description) {
 			if (action_description != null) {

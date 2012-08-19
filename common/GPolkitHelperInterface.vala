@@ -19,8 +19,10 @@
 
 namespace GPolkit.Common {
 	[DBus (name = "org.gnome.gpolkit.helper")]
-	public interface GPolkitHelper : Object {
+	public interface IGPolkitHelper : Object {
 		public abstract HashTable<string,Variant>[] get_implicit_policies () throws IOError;
 		public abstract void set_implicit_policies (HashTable<string,Variant>[] implicit_policies) throws IOError;
+		public abstract HashTable<string,Variant>[] get_explicit_policies () throws IOError;
+		public abstract void set_explicit_policies (HashTable<string,Variant>[] explicit_policies) throws IOError;
 	}
 }
