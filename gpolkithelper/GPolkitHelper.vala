@@ -24,6 +24,11 @@ using GPolkit.Common;
 
 namespace GPolkit.Helper 
 {
+	public static string last_of_string_array(string[] str_array)
+	{
+		return str_array[str_array.length - 1];
+	}
+	
 	[DBus (name = "org.gnome.gpolkit.helper")]
 	public class GPolkitHelper : Object
 	{
@@ -127,16 +132,17 @@ namespace GPolkit.Helper
 			
 			// Parse the files
 			foreach(var path in policy_paths) {
-				var action = get_action_from_path(path);
-				if (action != null) {
-					action_descriptors.add(action);
+				var actions = get_actions_from_path(path);
+				if (actions != null) {
+					action_descriptors.add_all(actions);
 				}
 			}
 			
 			return action_descriptors;
 		}
 		
-		private GActionDescriptor? get_action_from_path(string path) {
+		private ArrayList<GActionDescriptor>? get_actions_from_path(string path) {
+			var action_descriptors = new ArrayList<GActionDescriptor>();
 			var file = File.new_for_path (path);
 
 			if (!file.query_exists ()) {
@@ -151,13 +157,46 @@ namespace GPolkit.Helper
 				string line;
 				// Read lines until end of file (null) is reached
 				while ((line = dis.read_line (null)) != null) {
-					stdout.printf ("%s\n", line);
+					if (line.get(0) =='[') {
+						var action = new GActionDescriptor(null);
+						action.file_path = path;
+						var title_parts = line.split("[");
+						action.title = title_parts[title_parts.length - 1].split("]")[0];
+
+						while ((line = dis.read_line (null)) != null) {
+							if (line.contains("Identity=")) {
+								var identity_parts = line.split("Identity=");
+								action.user_names = last_of_string_array(identity_parts);
+							} else if (line.contains("Action=")) {
+								action.identity = last_of_string_array(line.split("Action="));
+							} else if (line.contains("ResultAny=")) {
+								action.allow_any = last_of_string_array(line.split("ResultAny="));
+							} else if (line.contains("ResultInactive=")) {
+								action.allow_inactive = last_of_string_array(line.split("ResultInactive="));
+							} else if (line.contains("ResultActive=")) {
+								action.allow_active = last_of_string_array(line.split("ResultActive="));
+							} else if (line[0] == '[') {
+								// Ouch!!
+								stdout.printf("Error while reading file: %s\n", path);
+								return null;
+							}
+
+							// Did we parse it all?
+							if (action.identity != "" && action.user_names != "" && action.allow_active != "" &&
+								action.allow_any != "" && action.allow_inactive != "" && action.file_path != "") {
+
+								action_descriptors.add(action);
+								break;
+							}
+						}
+					}
 				}
 			} catch (GLib.Error e) {
 				stdout.printf ("Catched error while reading file: %s", e.message);
+				return null;
 			}
 			
-			return null;
+			return action_descriptors;
 		}
 		
 		private Gee.List<string>? get_explicit_policy_file_paths(string search_path)

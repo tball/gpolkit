@@ -24,8 +24,10 @@ using GPolkit.Common;
 namespace GPolkit.Gui
 {
 	public class MainWindow : Object {
-		private TreeStoreProxy tree_store_proxy = null;
+		private ImplicitTreeStoreProxy implicit_tree_store_proxy = null;
+		private ExplicitTreeStoreProxy explicit_tree_store_proxy = null;
 		private TreeView tree_view = null;
+		private TreeView treeview_local_authorizations = null;
 		private IGPolkitHelper gpolkit_helper = null;
 		private ComboBox combo_box_allow_any = null;
 		private ComboBox combo_box_allow_active = null;
@@ -37,8 +39,41 @@ namespace GPolkit.Gui
 
 		public GActionDescriptor currently_selected_action { get; set; default = null;}
 		public Window view { get; set; default = null;}
-		public Gee.List<GActionDescriptor> actions {get; set; default = null;}
+		public Gee.List<GActionDescriptor> implicit_actions {get; set; default = null;}
+		public Gee.List<GActionDescriptor> explicit_actions {get; set; default = null;}
 		public string test { get; set; default = null;}
+		
+		[CCode(instance_pos=-1)]
+		public void explicit_action_edited(Object tree_view, TreePath tree_path, TreeViewColumn column)
+		{
+			TreeIter selected_iter;
+			TreeModel model;
+			
+			var user_window = new ActionWindow();
+			
+			treeview_local_authorizations.get_selection().get_selected(out model, out selected_iter);
+
+			if (selected_iter.user_data == null || model == null) {
+				return;
+			}
+
+			Value action_value;
+			model.get_value(selected_iter, ExplicitTreeStoreProxy.ColumnTypes.OBJECT, out action_value);
+			
+			if(!action_value.holds(typeof(GActionDescriptor))) {
+				// TODO: Prober warning
+				return;
+			}
+			var selected_action = (GActionDescriptor)action_value.get_object();
+			user_window.explicit_action = selected_action;
+			user_window.view.delete_event.connect((sender, event) => {
+			     var closing_window = sender as Window;
+			     if (closing_window == null) {
+			          return false;
+			     }
+			     return false;
+			});
+		}
 		
 		[CCode(instance_pos=-1)]
 		public void implicit_action_changed(Object sender)
@@ -97,7 +132,7 @@ namespace GPolkit.Gui
 		public void buttonapply_clicked(Object sender)
 		{
 			var changed_actions = new ArrayList<GActionDescriptor>();
-			foreach(var action in actions) {
+			foreach(var action in implicit_actions) {
 				if (action.changed == "true") {
 					changed_actions.add(action);
 				}
@@ -123,7 +158,7 @@ namespace GPolkit.Gui
 			}
 		
 			// Lets filter our treeview
-			tree_store_proxy.FilterString = search_entry.text;
+			implicit_tree_store_proxy.filter_string = search_entry.text;
 		}
 
 		[CCode(instance_pos=-1)]
@@ -139,7 +174,7 @@ namespace GPolkit.Gui
 			}
 
 			Value action_value;
-			model.get_value(selected_iter, TreeStoreProxy.ColumnTypes.ACTION_REF, out action_value);
+			model.get_value(selected_iter, ImplicitTreeStoreProxy.ColumnTypes.ACTION_REF, out action_value);
 			
 			if(!action_value.holds(typeof(GActionDescriptor))) {
 				// TODO: Prober warning
@@ -148,7 +183,7 @@ namespace GPolkit.Gui
 			currently_selected_action = (GActionDescriptor)action_value.get_object();
 		}
 		
-		private void update_action_widget(GActionDescriptor? action)
+		private void update_implicit_action(GActionDescriptor? action)
 		{
 			label_action_description.set_sensitive(action != null);
 			label_action_vendor.set_sensitive(action != null);
@@ -192,6 +227,7 @@ namespace GPolkit.Gui
 
 			// Fetch fields from ui
 			tree_view = builder.get_object("treeview_policies") as TreeView;
+			treeview_local_authorizations = builder.get_object("treeview_local_authorizations") as TreeView;
 			combo_box_allow_any = builder.get_object("combobox_allow_any") as ComboBox;
 			combo_box_allow_active = builder.get_object("combobox_allow_active") as ComboBox;
 			combo_box_allow_inactive = builder.get_object("combobox_allow_inactive") as ComboBox;
@@ -206,10 +242,12 @@ namespace GPolkit.Gui
 		}
 
 		private void init() {
-			tree_store_proxy = new TreeStoreProxy();
+			implicit_tree_store_proxy = new ImplicitTreeStoreProxy();
+			explicit_tree_store_proxy = new ExplicitTreeStoreProxy();
 
 			// Set our treeView model
-			tree_view.set_model(tree_store_proxy.get_filtered_tree_model());
+			tree_view.set_model(implicit_tree_store_proxy.get_filtered_tree_model());
+			treeview_local_authorizations.set_model(explicit_tree_store_proxy);
 
 			// Init helper
 			try {
@@ -222,16 +260,18 @@ namespace GPolkit.Gui
 
 
 			// Init bindings
-			this.notify["actions"].connect(tree_store_proxy.policies_changed);
+			this.notify["implicit-actions"].connect(implicit_tree_store_proxy.policies_changed);
 			this.notify["currently-selected-action"].connect((sender, param_spec) => {
-				update_action_widget(currently_selected_action);
+				update_implicit_action(currently_selected_action);
+				explicit_tree_store_proxy.update_policies(currently_selected_action, explicit_actions);
 			});
+			
 			
 			// Fetch policies
 			HashTable<string,Variant>[] hash_tables;
 			try {
 				hash_tables = gpolkit_helper.get_implicit_policies ();
-				actions = GActionDescriptor.de_serialize_array(hash_tables);
+				implicit_actions = GActionDescriptor.de_serialize_array(hash_tables);
 			}
 			catch(IOError err) {
 				stderr.printf("Unable to get implicit policies. Error %s\n", err.message);
@@ -239,7 +279,10 @@ namespace GPolkit.Gui
 			
 			try {
 				hash_tables = gpolkit_helper.get_explicit_policies ();
-				//actions = GActionDescriptor.de_serialize_array(hash_tables);
+				explicit_actions = GActionDescriptor.de_serialize_array(hash_tables);
+				foreach (var exp_action in explicit_actions) {
+					stdout.printf("Fetched explicit action %s\n", exp_action.to_string());
+				}
 			}
 			catch(IOError err) {
 				stderr.printf("Unable to get explicit policies. Error %s\n", err.message);

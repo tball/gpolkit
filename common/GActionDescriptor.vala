@@ -22,6 +22,7 @@ using Polkit;
 
 namespace GPolkit.Common {
 	public class GActionDescriptor : Object {
+		public string title { get; set; default = ""; }
 		public string vendor { get; set; default = ""; }
 		public string vendor_url { get; set; default = ""; }
 		public string identity { get; set; default = ""; }
@@ -51,7 +52,7 @@ namespace GPolkit.Common {
 		}
 
 		public string to_string() {
-			return "Policy { vendor: %s, vendor_url: %s, identity: %s, icon_name: %s, description %s, message %s }\n".printf(vendor, vendor_url, identity, icon_name, description, message);
+			return "Policy {\n identity: %s\n vendor: %s\n vendor_url: %s\n icon_name: %s\n description: %s\n message: %s\n title: %s\n user_names: %s\n file_path: %s\n}\n".printf(identity, vendor, vendor_url, icon_name, description, message, title, user_names, file_path);
 		}
 
 		public static HashTable<string, Variant> serialize(GActionDescriptor obj) {

@@ -15,17 +15,15 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- **/
-
+ **/ 
+ 
 using Gtk;
 using Gee;
 using GPolkit.Common;
-
-namespace GPolkit.Gui
-{
-	public class TreeStoreProxy : TreeStore 
-	{
-		public string FilterString {get; set; default="";}
+ 
+ namespace GPolkit.Models {
+	 public class ActionListTreeStoreProxy : TreeStore {
+		 public string filter_string {get; set; default="";}
 		
 		public enum ColumnTypes
 		{
@@ -37,30 +35,28 @@ namespace GPolkit.Gui
 		
 		public TreeModelFilter TreeStoreFilter { get; private set; }
 	
-		public TreeStoreProxy() 
-		{
+		public ActionListTreeStoreProxy() {
 			TreeStoreFilter = new TreeModelFilter(this, null);
 			TreeStoreFilter.set_visible_func(visibility_func);
 			set_column_types(new Type[] {typeof(string), typeof (string), typeof (string), typeof(GActionDescriptor)});
 			
 			// Create bindings
-			this.notify["FilterString"].connect((sender) => {TreeStoreFilter.refilter();});
+			this.notify["filter-string"].connect((sender) => {TreeStoreFilter.refilter();});
 		}
 
-		public TreeModel get_filtered_tree_model()
-		{
+		public TreeModel get_filtered_tree_model() {
 			return TreeStoreFilter;
 		}
 
 		private bool visibility_func(TreeModel model, TreeIter iter)
 		{
-			if (FilterString == "")
+			if (filter_string == "")
 			{
 				// Search aborted
 				return true;	
 			}
 			
-			var lower_case_filter_string = FilterString.down();
+			var lower_case_filter_string = filter_string.down();
 			
 			//
 			var parent_contains_string = parent_contains_string(lower_case_filter_string, new int [] { ColumnTypes.GROUP_ID, ColumnTypes.DESCRIPTION }, iter);
@@ -215,5 +211,5 @@ namespace GPolkit.Gui
 			set(child_iter, ColumnTypes.ICON, "folder", ColumnTypes.GROUP_ID, action_ids[level], -1);
 			insert_or_update(action_ids, action, child_iter, level + 1);
 		}
-	}
-}
+	 }
+ } 

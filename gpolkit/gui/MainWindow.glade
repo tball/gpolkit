@@ -446,8 +446,20 @@
                           <object class="GtkTreeView" id="treeview_local_authorizations">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <signal name="row-activated" handler="gpolkit_gui_main_window_explicit_action_edited" swapped="no"/>
                             <child internal-child="selection">
                               <object class="GtkTreeSelection" id="treeview-selection2"/>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                                <property name="title" translatable="yes">Local autorizations</property>
+                                <child>
+                                  <object class="GtkCellRendererText" id="cellrenderertext5"/>
+                                  <attributes>
+                                    <attribute name="text">0</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
                             </child>
                           </object>
                           <packing>

@@ -34,6 +34,12 @@ namespace GPolkit.Gui
           
           public Window view { get; set; default = null;} 
           public TreeView list_users { get; set; default = null;} 
+          public GActionDescriptor explicit_action { get; set; default = null; }
+          
+          private void explicit_action_changed()
+          {
+			  
+		  }
           
           private Window build_ui() {
 			var builder = new Builder();
@@ -57,6 +63,11 @@ namespace GPolkit.Gui
 		  }
           
           private void init() {
+			// Init bindings
+			this.notify["explicit-action"].connect((sender, param_spec) =>
+			{
+				explicit_action_changed();
+			});
 			
 		  }
 		  

@@ -17,12 +17,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  **/
 
-using GPolkit.Gui;
+using Gtk;
+using GPolkit.Views;
+using GPolkit.Models;
 
 namespace GPolkit {
 	class Program : Object {
-		private MainWindow main_window_model_view = null;
-		private Gtk.Window main_window_view = null;
+		private IBaseView main_window_view = null;
+		private BaseModel main_window_model = null;
 
 		public Program( ) {
 			/* Object( application_id: "gpolkit",
@@ -32,12 +34,13 @@ namespace GPolkit {
 
 		public void setup_ui(string[] args) {
 			Gtk.init (ref args);
-			main_window_model_view = new MainWindow();
-			main_window_view = main_window_model_view.view;
-			main_window_view.destroy.connect(Gtk.main_quit);
-
-			main_window_view.show_all( );
-
+			main_window_view = new MainWindowView();
+			main_window_model = new MainWindowModel();
+			main_window_view.connect_model(main_window_model);
+			
+			var main_window_view_window = main_window_view as Window;
+			main_window_view_window.destroy.connect(Gtk.main_quit);
+			main_window_view_window.show_all();
 		}
 
 		public void run() {

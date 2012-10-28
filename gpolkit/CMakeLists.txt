@@ -13,9 +13,19 @@ vala_precompile(VALA_C
 SOURCES
 main.vala
 Program.vala
-gui/MainWindow.vala
-gui/ActionWindow.vala
-gui/TreeStoreProxy.vala
+models/BaseModel.vala
+models/MainWindowModel.vala
+models/ActionListModel.vala
+models/ActionPropertiesModel.vala
+models/ActionListTreeStoreProxy.vala
+models/TopToolbarModel.vala
+models/ImplicitEditorModel.vala
+views/IBaseView.vala
+views/MainWindowView.vala
+views/ActionListView.vala
+views/ActionPropertiesView.vala
+views/TopToolbarView.vala
+views/ImplicitEditorView.vala
 
 PACKAGES
 gtk+-3.0
