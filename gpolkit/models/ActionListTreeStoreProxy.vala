@@ -169,12 +169,12 @@ using GPolkit.Common;
 				//stdout.printf("Reached outter level at %d with group %s\n", level, action_ids[level]);
 				
 				// Set icon to the parent of this entry
-				set(parent, ColumnTypes.ICON, action.icon_name != "" ? action.icon_name : "emblem-system", -1);
+				set(parent, ColumnTypes.ICON, action.icon_name != "" ? action.icon_name : "folder-symbolic", -1);
 				
 				TreeIter child_iter;
 				
 				append(out child_iter, parent);
-				set(child_iter, ColumnTypes.ICON, "stock_file-properties", ColumnTypes.GROUP_ID, action.description, ColumnTypes.ACTION_REF, action, -1);
+				set(child_iter, ColumnTypes.ICON, "channel-secure-symbolic", ColumnTypes.GROUP_ID, action.description, ColumnTypes.ACTION_REF, action, -1);
 				
 				return;
 			}
@@ -208,7 +208,7 @@ using GPolkit.Common;
 				append(out child_iter, parent);
 			}
 			
-			set(child_iter, ColumnTypes.ICON, "folder", ColumnTypes.GROUP_ID, action_ids[level], -1);
+			set(child_iter, ColumnTypes.ICON, "folder-symbolic", ColumnTypes.GROUP_ID, action_ids[level], -1);
 			insert_or_update(action_ids, action, child_iter, level + 1);
 		}
 	 }

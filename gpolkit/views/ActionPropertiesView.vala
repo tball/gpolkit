@@ -32,7 +32,9 @@ namespace GPolkit.Views {
 		public ActionPropertiesView() {
 			GLib.Object (orientation: Gtk.Orientation.VERTICAL,
 						 spacing: 4,
-						 expand : true );
+						 expand : false,
+						 sensitive : false,
+						 margin : 10);
 			Init();
 		}
 		
@@ -46,6 +48,7 @@ namespace GPolkit.Views {
 			base_model.bind("action-vendor-url", this, "action-vendor-url-string");
 			base_model.bind("action-description", action_description, "label");
 			base_model.bind("action-icon", action_icon, "icon-name");
+			base_model.bind("action-is-valid", this, "sensitive");
 			
 			// Bind child views
 			ActionPropertiesModel action_properties_model = base_model as ActionPropertiesModel;
@@ -53,7 +56,11 @@ namespace GPolkit.Views {
 		}
 		
 		protected void Init() {
-			action_icon = new Image.from_icon_name("", IconSize.BUTTON);
+			action_icon = new Image.from_icon_name("", IconSize.DIALOG);
+			action_icon.notify["icon-name"].connect((sender, param) => { 
+					action_icon.pixel_size = 50; 
+				});
+
 			action_description = new Label("");
 			action_description.halign = Align.START;
 			action_vendor = new Label("");
@@ -62,14 +69,13 @@ namespace GPolkit.Views {
 			
 			var horizontal_box = new Box(Orientation.HORIZONTAL, 4);
 			var vertical_box = new Box(Orientation.VERTICAL, 4);
-			vertical_box.add(action_vendor);
-			vertical_box.add(action_description);
-			horizontal_box.add(action_icon);
-			horizontal_box.add(vertical_box);
+			vertical_box.pack_start(action_vendor, false);
+			vertical_box.pack_start(action_description, false);
+			horizontal_box.pack_start(action_icon, false);
+			horizontal_box.pack_start(vertical_box, false);
 			
-			this.add(horizontal_box);
-			this.add(implicit_editor_view);
-			
+			this.pack_start(horizontal_box, false);
+			this.pack_start(implicit_editor_view);
 		}
 		
 		public void vendor_markup_changed(Object sender, ParamSpec spec) {

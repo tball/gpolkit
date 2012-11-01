@@ -40,9 +40,9 @@ namespace GPolkit.Views {
 			var allow_any_text_cell_rendere = new CellRendererText();
 			var allow_active_text_cell_rendere = new CellRendererText();
 			var allow_inactive_text_cell_rendere = new CellRendererText();
-			allow_any_combobox = new ComboBox() {active = 0 };
-			allow_active_combobox = new ComboBox() {active = 0 };
-			allow_inactive_combobox = new ComboBox() {active = 0 };
+			allow_any_combobox = new ComboBox() { active = 0, margin = 4 };
+			allow_active_combobox = new ComboBox() { active = 0, margin = 4 };
+			allow_inactive_combobox = new ComboBox() { active = 0, margin = 4 };
 			
 			allow_any_combobox.hexpand = true;
 			allow_active_combobox.hexpand = true;

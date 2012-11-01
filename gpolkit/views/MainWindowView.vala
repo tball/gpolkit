@@ -35,18 +35,18 @@ namespace GPolkit.Views {
 		protected void init() {
 			title = "GPolkit authorization manager";
 			window_position = WindowPosition.CENTER;
-			set_default_size(640,480);
+			set_default_size(1024, 768);
 			
 			horizontal_box = new Box(Orientation.HORIZONTAL, 4);
-			vertical_box = new Box(Orientation.VERTICAL, 4);
+			vertical_box = new Box(Orientation.VERTICAL, 4) { expand = true };
 			action_list_view = new ActionListView();
 			action_properties_view = new ActionPropertiesView();
 			top_toolbar_view = new TopToolbarView();
 			
-			horizontal_box.add(action_list_view);
-			horizontal_box.add(action_properties_view);
-			vertical_box.add(top_toolbar_view);
-			vertical_box.add(horizontal_box);
+			horizontal_box.pack_start(action_list_view);
+			horizontal_box.pack_start(action_properties_view);
+			vertical_box.pack_start(top_toolbar_view, false);
+			vertical_box.pack_start(horizontal_box);
 			this.add(vertical_box);
 		}
 		

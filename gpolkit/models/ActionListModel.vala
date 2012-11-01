@@ -59,7 +59,11 @@ namespace GPolkit.Models {
 			
 			Value action_descriptor_value;
 			tree_model.get_value(tree_iter, ActionListTreeStoreProxy.ColumnTypes.ACTION_REF, out action_descriptor_value);
-			currently_selected_action = action_descriptor_value.get_object() as GActionDescriptor;
+			var selected_action = action_descriptor_value.get_object() as GActionDescriptor;
+			
+			if (selected_action != null) {
+				currently_selected_action = selected_action;
+			}
 		}
 	}
 }

@@ -21,7 +21,7 @@ using Gtk;
 using GPolkit.Models;
  
 namespace GPolkit.Views {
-	public class TopToolbarView : Box, IBaseView {
+	public class TopToolbarView : Toolbar, IBaseView {
 		private Entry search_entry;
 		private Button save_button;
 		
@@ -29,25 +29,40 @@ namespace GPolkit.Views {
 		public signal void save_change_button_clicked();
 		
 		public TopToolbarView() {
-			GLib.Object (orientation: Gtk.Orientation.HORIZONTAL,
-						 spacing: 4,
-						 expand : false );
+			GLib.Object (hexpand : true,
+						 vexpand : false
+						 );
 			init();
 		}
 		
 		protected void init() {
-			search_entry = new Entry();
-			save_button = new Button();
+			get_style_context().add_class(STYLE_CLASS_PRIMARY_TOOLBAR);
+			
+			search_entry = new Entry() { margin = 4 };
+			save_button = new Button() { expand = false, margin = 4 };
 			
 			search_entry.changed.connect((sender) => { search_string_changed(search_entry.text); });
 			save_button.clicked.connect((sender) => { save_change_button_clicked(); });
-			search_entry.secondary_icon_stock = "gtk-find";
+			search_entry.secondary_icon_name = "edit-find-symbolic";
 			save_button.height_request = 35;
 			save_button.width_request = 35;
-			save_button.set_image(new Image.from_stock("gtk-save", IconSize.BUTTON));
+			save_button.set_image(new Image.from_icon_name("document-save-symbolic", IconSize.BUTTON));
+			save_button.tooltip_text = "Save changes";
 			
-			this.add(save_button);
-			this.add(search_entry);
+			//v_tool_bar_item_box.pack_start(save_button);
+			//v_tool_bar_item_box.pack_start(search_entry);
+			
+			var save_button_tool_item = new ToolItem();
+			var separator_tool_item = new SeparatorToolItem() { draw = false, expand = true };
+			var search_entry_tool_item = new ToolItem();
+			//var tool_item = new ToolItem();
+			//tool_item.add(v_tool_bar_item_box);
+			save_button_tool_item.add(save_button);
+			search_entry_tool_item.add(search_entry);
+			this.insert(save_button_tool_item, 0);
+			this.insert(separator_tool_item, 1);
+			this.insert(search_entry_tool_item, 2);
+			//this.insert(tool_item, 0);
 		}
 		
 		public void connect_model(BaseModel base_model) {

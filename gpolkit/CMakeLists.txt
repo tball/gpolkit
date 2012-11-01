@@ -43,5 +43,3 @@ add_executable(gpolkit ${VALA_C})
 target_link_libraries(gpolkit gpolkitcommon ${GTK_LIBRARIES} ${GEE_LIBRARIES} ${GMODULE_LIBRARIES} ${DBUS_LIBRARIES} ${DBUS-GLIB_LIBRARIES} ${GLIB_LIBRARIES} ${POLBACK_LIBRARIES})
 
 install(TARGETS gpolkit DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-add_subdirectory(gui)

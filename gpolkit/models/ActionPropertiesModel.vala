@@ -28,6 +28,7 @@ namespace GPolkit.Models {
 		public string action_vendor_url {get; set; default = ""; }
 		public string action_description {get; set; default = ""; }
 		public string action_icon {get; set; default = ""; }
+		public bool action_is_valid { get; set; default = false; }
 		
 		public ActionPropertiesModel(BaseModel parent) {
 			parent_model = parent;
@@ -59,6 +60,7 @@ namespace GPolkit.Models {
 			action_vendor = currently_selected_action.vendor;
 			action_vendor_url = currently_selected_action.vendor_url;
 			action_icon = currently_selected_action.icon_name;
+			action_is_valid = true;
 		}
 	}
 }
