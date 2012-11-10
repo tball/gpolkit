@@ -1,4 +1,4 @@
-/**
+ /**
  * GPolkit is a gtk based polkit authorization manager.
  * Copyright (C) 2012  Thomas Balling Sørensen
  *
@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- **/ 
+ **/
  
-using Gee;
-using GPolkit.Views;
+using Gtk;
+using GPolkit.Common;
 
 namespace GPolkit.Models {
-	public class BaseModel : GLib.Object {
-
+	public class ExplicitEditorWindowModel : BaseModel {
+		
 	}
 }

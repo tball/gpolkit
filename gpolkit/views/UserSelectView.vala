@@ -15,13 +15,27 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- **/ 
+ **/
  
-using Gee;
-using GPolkit.Views;
-
-namespace GPolkit.Models {
-	public class BaseModel : GLib.Object {
-
+using Gtk;
+using GPolkit.Models;
+ 
+namespace GPolkit.Views {
+	public class UserSelectView : ScrolledWindow, IBaseView {
+		private TreeView tree_view;
+		
+		public UserSelectView() {
+			init();
+		}
+		
+		protected void init() {
+			tree_view = new TreeView();
+			
+			add(tree_view);
+		}
+		
+		public void connect_model(BaseModel base_model) {
+			
+		}
 	}
 }

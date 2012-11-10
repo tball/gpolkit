@@ -20,12 +20,19 @@ models/ActionPropertiesModel.vala
 models/ActionListTreeStoreProxy.vala
 models/TopToolbarModel.vala
 models/ImplicitEditorModel.vala
+models/ExplicitOverviewModel.vala
+models/ExplicitActionTreeStore.vala
+models/ExplicitEditorWindowModel.vala
+models/UserSelectModel.vala
 views/IBaseView.vala
 views/MainWindowView.vala
 views/ActionListView.vala
 views/ActionPropertiesView.vala
 views/TopToolbarView.vala
 views/ImplicitEditorView.vala
+views/ExplicitOverviewView.vala
+views/ExplicitEditorWindowView.vala
+views/UserSelectView.vala
 
 PACKAGES
 gtk+-3.0

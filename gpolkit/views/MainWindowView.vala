@@ -29,16 +29,17 @@ namespace GPolkit.Views {
 		public ActionPropertiesView action_properties_view;
 		public TopToolbarView top_toolbar_view;
 		public MainWindowView() {
+			GLib.Object ( icon_name : "changes-prevent-symbolic",
+						  title : "GPolkit authorization manager",
+						  window_position : WindowPosition.CENTER,
+						  width_request : 1024,
+						  height_request : 768);
 			init();
 		}
 		
 		protected void init() {
-			title = "GPolkit authorization manager";
-			window_position = WindowPosition.CENTER;
-			set_default_size(1024, 768);
-			
 			horizontal_box = new Box(Orientation.HORIZONTAL, 4);
-			vertical_box = new Box(Orientation.VERTICAL, 4) { expand = true };
+			vertical_box = new Box(Orientation.VERTICAL, 4);
 			action_list_view = new ActionListView();
 			action_properties_view = new ActionPropertiesView();
 			top_toolbar_view = new TopToolbarView();

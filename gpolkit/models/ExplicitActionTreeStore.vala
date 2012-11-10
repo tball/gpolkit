@@ -15,13 +15,41 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- **/ 
- 
+ **/
+
+using Gtk;
 using Gee;
-using GPolkit.Views;
+using GPolkit.Common;
 
 namespace GPolkit.Models {
-	public class BaseModel : GLib.Object {
+	public class ExplicitActionTreeStore : TreeStore {
+		public enum ColumnTypes {
+			IDENTITY = 0,
+			OBJECT
+		}
+	
+		public ExplicitActionTreeStore() {
+			set_column_types(new Type[] {typeof(string), typeof(GActionDescriptor)});
+		}
 
+		public void update_policies(GActionDescriptor? currently_selected_action, Gee.List<GActionDescriptor>? actions) {
+			clear();
+			
+			if (currently_selected_action == null || actions == null) {
+				return;
+			}
+
+			// Parse policies			
+			foreach (GActionDescriptor action in actions) {
+				if (!action.identity.contains(currently_selected_action.identity)) {
+					continue;
+				}
+
+				TreeIter root;
+				append(out root, null);
+				set(root, ColumnTypes.IDENTITY, "<b>" + action.title + "</b>,\n<i>" + action.file_path + "</i>", ColumnTypes.OBJECT, action, -1);
+			}
+		}
 	}
 }
+ 

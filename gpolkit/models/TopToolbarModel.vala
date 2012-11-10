@@ -36,9 +36,9 @@ namespace GPolkit.Models {
 		
 		protected void init() {
 			// Create bindings
-			parent_model.bind("implicit-actions", this, "implicit-actions");
-			parent_model.bind("gpolkit-helper", this, "gpolkit-helper");
-			this.bind("search-string", parent_model, "search-string");
+			parent_model.bind_property("implicit-actions", this, "implicit-actions");
+			parent_model.bind_property("gpolkit-helper", this, "gpolkit-helper");
+			this.bind_property("search-string", parent_model, "search-string");
 		}
 		
 		public void save_changes() {

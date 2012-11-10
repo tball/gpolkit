@@ -31,8 +31,7 @@ namespace GPolkit.Views {
 		public signal void allow_inactive_index_changed(int index);
 		
 		public ImplicitEditorView() {
-			GLib.Object (orientation: Gtk.Orientation.HORIZONTAL,
-						 expand : true );
+			GLib.Object (orientation: Gtk.Orientation.HORIZONTAL);
 			init();
 		}
 		
@@ -81,9 +80,9 @@ namespace GPolkit.Views {
 			allow_inactive_combobox.set_model(implicit_editor_model.implicit_authorization_list_store);
 			
 			// Bind view to model
-			implicit_editor_model.bind("allow-any-index", allow_any_combobox, "active");
-			implicit_editor_model.bind("allow-active-index", allow_active_combobox, "active");
-			implicit_editor_model.bind("allow-inactive-index", allow_inactive_combobox, "active");
+			implicit_editor_model.bind_property("allow-any-index", allow_any_combobox, "active");
+			implicit_editor_model.bind_property("allow-active-index", allow_active_combobox, "active");
+			implicit_editor_model.bind_property("allow-inactive-index", allow_inactive_combobox, "active");
 			
 			// Bind model to events from view
 			allow_any_index_changed.connect(implicit_editor_model.allow_any_authorization_changed);

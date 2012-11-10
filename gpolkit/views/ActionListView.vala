@@ -25,7 +25,9 @@
 		 private TreeView tree_view;
 		 
 		 public ActionListView() {
-			 GLib.Object (width_request : 80);
+			 GLib.Object (width_request : 80,
+						  shadow_type : ShadowType.IN,
+						  margin : 10);
 			 init();
 		 }
 		 
@@ -51,7 +53,7 @@
 			tree_view_column.set_attributes(pixbuf_cell_rendere, "icon_name", 0, null);
 			tree_view_column.set_attributes(text_cell_rendere, "text", 1, null);
 			tree_view_column.title = "Actions";
-			tree_view = new TreeView() { margin = 10 };
+			tree_view = new TreeView();
 			tree_view.expand = true;
 			tree_view.append_column(tree_view_column);
 			

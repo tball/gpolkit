@@ -43,9 +43,9 @@ namespace GPolkit.Models {
 			this.notify["implicit-actions"].connect(action_list_tree_store_proxy.policies_changed);
 			
 			// Connect to appropriate parent model properties
-			parent.bind("implicit-actions", this, "implicit-actions");
-			parent.bind("search-string", action_list_tree_store_proxy, "filter-string");
-			this.bind("currently-selected-action", parent, "currently-selected-action");
+			parent.bind_property("implicit-actions", this, "implicit-actions");
+			parent.bind_property("search-string", action_list_tree_store_proxy, "filter-string");
+			this.bind_property("currently-selected-action", parent, "currently-selected-action");
 		}
 		
 		public TreeModel get_filtered_tree_model() {

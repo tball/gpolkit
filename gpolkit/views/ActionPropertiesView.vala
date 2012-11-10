@@ -29,6 +29,7 @@ namespace GPolkit.Views {
 		public string action_vendor_string {get; set; default = "";}
 		public string action_vendor_url_string {get; set; default = "";}
 		public ImplicitEditorView implicit_editor_view;
+		public ExplicitOverviewView explicit_overview_view;
 		public ActionPropertiesView() {
 			GLib.Object (orientation: Gtk.Orientation.VERTICAL,
 						 spacing: 4,
@@ -44,15 +45,16 @@ namespace GPolkit.Views {
 			this.notify["action-vendor-url-string"].connect(vendor_markup_changed);
 			
 			// Bind to the model properties
-			base_model.bind("action-vendor", this, "action-vendor-string");
-			base_model.bind("action-vendor-url", this, "action-vendor-url-string");
-			base_model.bind("action-description", action_description, "label");
-			base_model.bind("action-icon", action_icon, "icon-name");
-			base_model.bind("action-is-valid", this, "sensitive");
+			base_model.bind_property("action-vendor", this, "action-vendor-string");
+			base_model.bind_property("action-vendor-url", this, "action-vendor-url-string");
+			base_model.bind_property("action-description", action_description, "label");
+			base_model.bind_property("action-icon", action_icon, "icon-name");
+			base_model.bind_property("action-is-valid", this, "sensitive");
 			
 			// Bind child views
 			ActionPropertiesModel action_properties_model = base_model as ActionPropertiesModel;
 			implicit_editor_view.connect_model(action_properties_model.implicit_editor_model);
+			explicit_overview_view.connect_model(action_properties_model.explicit_overview_model);
 		}
 		
 		protected void Init() {
@@ -66,6 +68,7 @@ namespace GPolkit.Views {
 			action_vendor = new Label("");
 			action_vendor.halign = Align.START;
 			implicit_editor_view = new ImplicitEditorView();
+			explicit_overview_view = new ExplicitOverviewView();
 			
 			var horizontal_box = new Box(Orientation.HORIZONTAL, 4);
 			var vertical_box = new Box(Orientation.VERTICAL, 4);
@@ -74,8 +77,18 @@ namespace GPolkit.Views {
 			horizontal_box.pack_start(action_icon, false);
 			horizontal_box.pack_start(vertical_box, false);
 			
+			var implicit_label = new Label(null);
+			implicit_label.halign = Align.START;
+			implicit_label.set_markup("<b>Implicit action</b>");
+			var explicit_label = new Label(null);
+			explicit_label.halign = Align.START;
+			explicit_label.set_markup("<b>Explicit action</b>");
+			
 			this.pack_start(horizontal_box, false);
-			this.pack_start(implicit_editor_view);
+			this.pack_start(implicit_label, false);
+			this.pack_start(implicit_editor_view, false);
+			this.pack_start(explicit_label, false);
+			this.pack_start(explicit_overview_view, false);
 		}
 		
 		public void vendor_markup_changed(Object sender, ParamSpec spec) {

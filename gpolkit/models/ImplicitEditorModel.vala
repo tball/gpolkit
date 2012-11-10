@@ -54,7 +54,7 @@ namespace GPolkit.Models {
 			this.notify["edited-implicit-action"].connect(edited_implicit_action_changed);
 			
 			// Connect to appropriate parent model properties
-			parent_model.bind("currently-selected-action", this, "edited-implicit-action");
+			parent_model.bind_property("currently-selected-action", this, "edited-implicit-action");
 		}
 		
 		public void edited_implicit_action_changed(Object sender, ParamSpec spec) {
