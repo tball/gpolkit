@@ -22,7 +22,7 @@ using GPolkit.Common;
 
 namespace GPolkit.Models {
 	public class ImplicitEditorModel : BaseModel {
-		private const string[] implicit_authorizations_string_array = {"Not authorized", "Authentication required", "Admin authentication required",
+		public static const string[] implicit_authorizations_string_array = {"Not authorized", "Authentication required", "Admin authentication required",
 																	   "Authentication required retained", "Admin authentication required retained", "Authorized"};
 		private BaseModel parent_model;
 		
@@ -52,9 +52,6 @@ namespace GPolkit.Models {
 			
 			// Internal bindings
 			this.notify["edited-implicit-action"].connect(edited_implicit_action_changed);
-			
-			// Connect to appropriate parent model properties
-			parent_model.bind_property("currently-selected-action", this, "edited-implicit-action");
 		}
 		
 		public void edited_implicit_action_changed(Object sender, ParamSpec spec) {
@@ -63,31 +60,25 @@ namespace GPolkit.Models {
 			}
 			
 			// Register authorization indexes
-			Polkit.ImplicitAuthorization allow_any_impl;
-			Polkit.ImplicitAuthorization allow_active_impl;
-			Polkit.ImplicitAuthorization allow_inactive_impl;
-			Polkit.ImplicitAuthorization.from_string(edited_implicit_action.allow_any, out allow_any_impl);
-			Polkit.ImplicitAuthorization.from_string(edited_implicit_action.allow_active, out allow_active_impl);
-			Polkit.ImplicitAuthorization.from_string(edited_implicit_action.allow_inactive, out allow_inactive_impl);
-			allow_any_index = (int)allow_any_impl;
-			allow_active_index = (int)allow_active_impl;
-			allow_inactive_index = (int)allow_inactive_impl;
+			allow_any_index = GActionDescriptor.get_authorization_index_from_string(edited_implicit_action.allow_any);
+			allow_active_index = GActionDescriptor.get_authorization_index_from_string(edited_implicit_action.allow_active);
+			allow_inactive_index = GActionDescriptor.get_authorization_index_from_string(edited_implicit_action.allow_inactive);
 		}
 		
 		public void allow_any_authorization_changed(int index) {
-			var allow_any_str = Polkit.ImplicitAuthorization.to_string((Polkit.ImplicitAuthorization)index);
+			var allow_any_str = GActionDescriptor.get_authorization_string_from_index(index);
 			edited_implicit_action.allow_any = allow_any_str;
 			edited_implicit_action.changed = "true";
 		}
 		
 		public void allow_active_authorization_changed(int index) {
-			var allow_active_str = Polkit.ImplicitAuthorization.to_string((Polkit.ImplicitAuthorization)index);
+			var allow_active_str = GActionDescriptor.get_authorization_string_from_index(index);
 			edited_implicit_action.allow_active = allow_active_str;
 			edited_implicit_action.changed = "true";
 		}
 		
 		public void allow_inactive_authorization_changed(int index) {
-			var allow_inactive_str = Polkit.ImplicitAuthorization.to_string((Polkit.ImplicitAuthorization)index);
+			var allow_inactive_str = GActionDescriptor.get_authorization_string_from_index(index);
 			edited_implicit_action.allow_inactive = allow_inactive_str;
 			edited_implicit_action.changed = "true";
 		}

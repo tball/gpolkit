@@ -43,6 +43,10 @@ using GPolkit.Views;
 			 action_properties_model = new ActionPropertiesModel(this);
 			 top_toolbar_model = new TopToolbarModel(this);
 			 
+			 // Connect to appropriate parent model properties
+			this.bind_property("currently-selected-action", action_properties_model, "currently-selected-action");
+			this.bind_property("explicit-actions", action_properties_model, "explicit-actions");
+			 
 			 // Init authorization helper
 			try {
 				gpolkit_helper = Bus.get_proxy_sync (BusType.SYSTEM, "org.gnome.gpolkit.helper",

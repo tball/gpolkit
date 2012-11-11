@@ -19,6 +19,7 @@
 
 using Gtk;
 using Gee;
+using Polkit;
 using GPolkit.Common;
 
 namespace GPolkit.Models {
@@ -45,9 +46,14 @@ namespace GPolkit.Models {
 					continue;
 				}
 
+				var allow_any_readable_string = ImplicitEditorModel.implicit_authorizations_string_array[GActionDescriptor.get_authorization_index_from_string(action.allow_any)];
+				var allow_active_readable_string = ImplicitEditorModel.implicit_authorizations_string_array[GActionDescriptor.get_authorization_index_from_string(action.allow_active)];
+				var allow_inactive_readable_string = ImplicitEditorModel.implicit_authorizations_string_array[GActionDescriptor.get_authorization_index_from_string(action.allow_inactive)];
 				TreeIter root;
 				append(out root, null);
-				set(root, ColumnTypes.IDENTITY, "<b>" + action.title + "</b>,\n<i>" + action.file_path + "</i>", ColumnTypes.OBJECT, action, -1);
+				set(root, ColumnTypes.IDENTITY, "<b>" + action.title + "</b>, " + "(Allow any: " + allow_any_readable_string + ", Allow active: " + allow_active_readable_string + ", Allow inactive: " + allow_inactive_readable_string + ")\n" +
+												"<i>" + action.user_names + "</i>\n"
+												, ColumnTypes.OBJECT, action, -1);
 			}
 		}
 	}

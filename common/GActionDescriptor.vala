@@ -37,6 +37,40 @@ namespace GPolkit.Common {
 		public string action_type { get; set; default = ""; }
 		public string user_names { get; set; default = ""; }
 
+		public void copy_to(GActionDescriptor dest_action) {
+			dest_action.title = title;
+			dest_action.vendor = vendor;
+			dest_action.vendor_url = vendor_url;
+			dest_action.identity = identity;
+			dest_action.icon_name = icon_name;
+			dest_action.description = description;
+			dest_action.message = message;
+			dest_action.file_path = file_path;
+			dest_action.allow_any = allow_any;
+			dest_action.allow_inactive = allow_inactive;
+			dest_action.allow_active = allow_active;
+			dest_action.changed = changed;
+			dest_action.action_type = action_type;
+			dest_action.user_names = user_names;
+		}
+
+		public void copy_from(GActionDescriptor src_action) {
+			title = src_action.title;
+			vendor = src_action.vendor;
+			vendor_url = src_action.vendor_url;
+			identity = src_action.identity;
+			icon_name = src_action.icon_name;
+			description = src_action.description;
+			message = src_action.message;
+			file_path = src_action.file_path;
+			allow_any = src_action.allow_any;
+			allow_inactive = src_action.allow_inactive;
+			allow_active = src_action.allow_active;
+			changed = src_action.changed;
+			action_type = src_action.action_type;
+			user_names = src_action.user_names;
+		}
+		
 		public GActionDescriptor(ActionDescription ? action_description) {
 			if (action_description != null) {
 				vendor = action_description.get_vendor_name();
@@ -53,6 +87,17 @@ namespace GPolkit.Common {
 
 		public string to_string() {
 			return "Policy {\n identity: %s\n vendor: %s\n vendor_url: %s\n icon_name: %s\n description: %s\n message: %s\n title: %s\n user_names: %s\n file_path: %s\n}\n".printf(identity, vendor, vendor_url, icon_name, description, message, title, user_names, file_path);
+		}
+
+		public static int get_authorization_index_from_string(string authorization_string) {
+			ImplicitAuthorization implicit_authorization;
+			ImplicitAuthorization.from_string(authorization_string, out implicit_authorization);
+			return implicit_authorization;
+		}
+		
+		public static string get_authorization_string_from_index(int authorization_index) {
+			var implicit_authorization = (ImplicitAuthorization)authorization_index;
+			return ImplicitAuthorization.to_string(implicit_authorization);
 		}
 
 		public static HashTable<string, Variant> serialize(GActionDescriptor obj) {

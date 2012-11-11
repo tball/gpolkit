@@ -26,8 +26,9 @@ namespace GPolkit.Views {
 		private UserSelectView user_select_view;
 		private Button save_changes_button;
 		private Button cancel_changes_button;
-		
-		public bool save_changes = false;
+		private Entry action_title_entry;
+	
+		public signal void save_explicit_action(); 
 
 		public ExplicitEditorWindowView() {
 			GLib.Object( modal : true,
@@ -39,27 +40,52 @@ namespace GPolkit.Views {
 		}
 		
 		protected void init() {
-			var vertical_box = new Box(Orientation.VERTICAL, 4);
+			var vertical_box = new Box(Orientation.VERTICAL, 4) { margin = 10 };
 			var horizontal_box = new Box(Orientation.HORIZONTAL, 4);
+			var title_label = new Label(null);
+			var action_authentication_label = new Label(null);
+			var user_select_label = new Label(null);
 			implicit_editor_view = new ImplicitEditorView();
 			user_select_view = new UserSelectView();
 			save_changes_button = new Button.with_label("Save");
 			cancel_changes_button = new Button.with_label("Cancel");
+			action_title_entry = new Entry();
+			user_select_label = new Label(null);
 			
-			save_changes_button.clicked.connect((sender) => { save_changes = true; destroy(); });
-			cancel_changes_button.clicked.connect((sender) => { save_changes = false; destroy(); });
 			
-			horizontal_box.pack_start(save_changes_button);
-			horizontal_box.pack_start(cancel_changes_button);
-			vertical_box.pack_start(implicit_editor_view);
+			title_label.halign = Align.START;
+			title_label.set_markup("<b>Title</b>");
+			action_authentication_label.halign = Align.START;
+			action_authentication_label.set_markup("<b>Authentication</b>");
+			user_select_label.halign = Align.START;
+			user_select_label.set_markup("<b>Affected users</b>");
+			
+			save_changes_button.clicked.connect((sender) => { save_explicit_action(); destroy(); });
+			cancel_changes_button.clicked.connect((sender) => { destroy(); });
+			
+			horizontal_box.pack_start(save_changes_button, false);
+			horizontal_box.pack_start(cancel_changes_button, false);
+			vertical_box.pack_start(title_label, false);
+			vertical_box.pack_start(action_title_entry, false);
+			vertical_box.pack_start(action_authentication_label, false);
+			vertical_box.pack_start(implicit_editor_view, false);
+			vertical_box.pack_start(user_select_label, false);
 			vertical_box.pack_start(user_select_view);
-			vertical_box.pack_start(horizontal_box);
+			vertical_box.pack_start(horizontal_box, false);
 			
 			this.add(vertical_box);
 		}
 
 		void connect_model(BaseModel base_model) {
+			var explicit_editor_window_model = base_model as ExplicitEditorWindowModel;
+			explicit_editor_window_model.bind_property("title", action_title_entry, "text");
+			action_title_entry.bind_property("text", explicit_editor_window_model, "unsaved-title");
 			
+			// Connect view events to model
+			save_explicit_action.connect(explicit_editor_window_model.save_explicit_action);
+			
+			// Connect child views to child models
+			implicit_editor_view.connect_model(explicit_editor_window_model.implicit_editor_model);
 		}
 	}
 }

@@ -25,11 +25,12 @@ namespace GPolkit.Views {
 		private TreeView tree_view;
 		
 		public UserSelectView() {
+			GLib.Object(shadow_type : ShadowType.IN);
 			init();
 		}
 		
 		protected void init() {
-			tree_view = new TreeView();
+			tree_view = new TreeView() { expand = true };
 			
 			add(tree_view);
 		}
