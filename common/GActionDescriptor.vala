@@ -88,6 +88,14 @@ namespace GPolkit.Common {
 		public string to_string() {
 			return "Policy {\n identity: %s\n vendor: %s\n vendor_url: %s\n icon_name: %s\n description: %s\n message: %s\n title: %s\n user_names: %s\n file_path: %s\n}\n".printf(identity, vendor, vendor_url, icon_name, description, message, title, user_names, file_path);
 		}
+		
+		public string[] ?get_identities() {
+			if ( identity == null ) {
+				return null;
+			}
+			
+			return identity.split(":");
+		}
 
 		public static int get_authorization_index_from_string(string authorization_string) {
 			ImplicitAuthorization implicit_authorization;

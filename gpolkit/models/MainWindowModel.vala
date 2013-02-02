@@ -30,7 +30,8 @@ using GPolkit.Views;
 		 public TopToolbarModel top_toolbar_model;
 		 public Gee.List<GActionDescriptor> implicit_actions {get; set; default = null;}
 		 public Gee.List<GActionDescriptor> explicit_actions {get; set; default = null;}
-		 public GActionDescriptor currently_selected_action { get; set; default = null;}
+		 public Gee.List<GActionDescriptor> currently_selected_actions { get; set; default = null;}
+		 public GActionDescriptor selected_explicit_action { get; set; default = null; }
 		 public string search_string { get; set; default = ""; }
 		 
 		 public MainWindowModel() {
@@ -44,8 +45,12 @@ using GPolkit.Views;
 			 top_toolbar_model = new TopToolbarModel(this);
 			 
 			 // Connect to appropriate parent model properties
-			this.bind_property("currently-selected-action", action_properties_model, "currently-selected-action");
+			this.bind_property("currently-selected-actions", action_properties_model, "currently-selected-actions");
 			this.bind_property("explicit-actions", action_properties_model, "explicit-actions");
+			
+			// Connect to child models properties
+			action_properties_model.bind_property("selected-explicit-action", this, "selected-explicit-action");
+			this.bind_property("selected-explicit-action", action_list_model, "selected-explicit-action");
 			 
 			 // Init authorization helper
 			try {

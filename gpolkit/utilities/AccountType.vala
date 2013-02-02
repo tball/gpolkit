@@ -17,17 +17,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  **/
 
-using Gee;
 
-namespace GPolkit.Common {
-	[DBus (name = "org.freedesktop.DBus.Properties")]
-	public interface AccountPropertiesInterface : Object {
-		public abstract HashTable<string, Variant> get_all(string interface_name) throws IOError;
-	}
-	
-	[DBus (name = "org.freedesktop.Accounts")]
-	public interface AccountsInterface : Object {
-		public abstract ObjectPath[] list_cached_users() throws IOError;
-		public abstract ObjectPath find_user_by_name(string username) throws IOError;
-	}
+ namespace GPolkit.Utilities {
+ 	public enum AccountType {
+ 		LINUX_USER,
+ 		LINUX_GROUP
+ 	}
 }

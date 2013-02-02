@@ -28,6 +28,7 @@ namespace GPolkit.Models {
 		
 		public GActionDescriptor edited_implicit_action { get; set; default = null; }
 		public ListStore implicit_authorization_list_store { get; set; default = null; }
+		public bool sensitive { get; set; default = true; }
 		public int allow_any_index  { get; set; default = 0; }
 		public int allow_active_index  { get; set; default = 0; }
 		public int allow_inactive_index  { get; set; default = 0; }
@@ -56,8 +57,10 @@ namespace GPolkit.Models {
 		
 		public void edited_implicit_action_changed(Object sender, ParamSpec spec) {
 			if (edited_implicit_action == null) {
+				sensitive = false;
 				return;
 			}
+			sensitive = true;
 			
 			// Register authorization indexes
 			allow_any_index = GActionDescriptor.get_authorization_index_from_string(edited_implicit_action.allow_any);

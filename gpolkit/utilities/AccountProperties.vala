@@ -16,28 +16,12 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  **/
- 
-using Gtk;
-using GPolkit.Models;
- 
-namespace GPolkit.Views {
-	public class UserSelectView : ScrolledWindow, IBaseView {
-		private TreeView tree_view;
-		
-		public UserSelectView() {
-			GLib.Object(shadow_type : ShadowType.IN);
-			init();
-		}
-		
-		protected void init() {
-			tree_view = new TreeView() { expand = true };
-			tree_view.get_selection().mode = SelectionMode.MULTIPLE;
-			
-			add(tree_view);
-		}
-		
-		public void connect_model(BaseModel base_model) {
-			
-		}
-	}
+
+
+ namespace GPolkit.Utilities {
+ 	public class AccountProperties : Object {
+ 		public string full_name {get; set; default="";}
+ 		public string user_name {get; set; default="";}
+ 		public AccountType account_type {get; set; default=AccountType.LINUX_USER;}
+ 	}
 }

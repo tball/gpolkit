@@ -54,9 +54,8 @@ namespace GPolkit.Views {
 			
 			// Create view bindings
 			add_action_rule_button.clicked.connect((sender) => { action_added_or_edited_rule_button_clicked(null); });
-			explicit_action_tree_view.row_activated.connect(explicit_action_selection_changed);
+			explicit_action_tree_view.row_activated.connect(explicit_action_selection_double_clicked);
 
-			
 			action_toolbar.insert(add_action_rule_button, 0);
 			action_toolbar.insert(remove_action_rule_button, 1);
 			
@@ -65,7 +64,7 @@ namespace GPolkit.Views {
 			this.pack_start(action_toolbar, false);
 		}
 		
-		private void explicit_action_selection_changed(TreeView tree_view, TreePath path, TreeViewColumn column) {
+		private void explicit_action_selection_double_clicked(TreeView tree_view, TreePath path, TreeViewColumn column) {
 			TreeModel tree_model;
 			TreeIter tree_iter;
 			tree_view.get_selection().get_selected(out tree_model, out tree_iter);
@@ -85,8 +84,8 @@ namespace GPolkit.Views {
 			explicit_overview_model.bind_property("can-add-or-edit-explicit-action", this, "sensitive");
 			explicit_action_tree_view.model = explicit_overview_model.explicit_action_list_tree_store;
 			
-			
 			// Connect view events to model
+			explicit_action_tree_view.get_selection().changed.connect(explicit_overview_model.explicit_action_selection_changed);
 			action_added_or_edited_rule_button_clicked.connect(explicit_overview_model.add_or_edit_explicit_action);
 		}
 	}

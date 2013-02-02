@@ -83,6 +83,7 @@ namespace GPolkit.Views {
 			implicit_editor_model.bind_property("allow-any-index", allow_any_combobox, "active");
 			implicit_editor_model.bind_property("allow-active-index", allow_active_combobox, "active");
 			implicit_editor_model.bind_property("allow-inactive-index", allow_inactive_combobox, "active");
+			implicit_editor_model.bind_property("sensitive", this, "sensitive");
 			
 			// Bind model to events from view
 			allow_any_index_changed.connect(implicit_editor_model.allow_any_authorization_changed);

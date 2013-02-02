@@ -19,6 +19,7 @@
 
 
 using Gtk;
+using Gee;
 using GPolkit.Common;
 using GPolkit.Views;
 
@@ -29,7 +30,8 @@ namespace GPolkit.Models {
 		private BaseModel parent;
 		
 		public Gee.List<GActionDescriptor> implicit_actions { get; set; default = null; }
-		public GActionDescriptor currently_selected_action { get; set; default = null; }
+		public Gee.List<GActionDescriptor> currently_selected_actions { get; set; default = null; }
+		public GActionDescriptor selected_explicit_action { get; set; default = null; }
 		
 		public ActionListModel(BaseModel parent_model) {
 			parent = parent_model;
@@ -45,7 +47,7 @@ namespace GPolkit.Models {
 			// Connect to appropriate parent model properties
 			parent.bind_property("implicit-actions", this, "implicit-actions");
 			parent.bind_property("search-string", action_list_tree_store_proxy, "filter-string");
-			this.bind_property("currently-selected-action", parent, "currently-selected-action");
+			this.bind_property("currently-selected-actions", parent, "currently-selected-actions");
 		}
 		
 		public TreeModel get_filtered_tree_model() {
@@ -54,16 +56,24 @@ namespace GPolkit.Models {
 		
 		public void action_selection_changed(TreeSelection sender) {
 			TreeModel tree_model;
-			TreeIter tree_iter;
-			sender.get_selected(out tree_model, out tree_iter);
+			var selected_action_descriptors = new ArrayList<GActionDescriptor>();
+			var selected_action_tree_paths = sender.get_selected_rows(out tree_model);
 			
-			Value action_descriptor_value;
-			tree_model.get_value(tree_iter, ActionListTreeStoreProxy.ColumnTypes.ACTION_REF, out action_descriptor_value);
-			var selected_action = action_descriptor_value.get_object() as GActionDescriptor;
-			
-			if (selected_action != null) {
-				currently_selected_action = selected_action;
+			foreach (var selected_action_tree_path in selected_action_tree_paths) {
+				TreeIter tree_iter;
+				Value action_descriptor_value;
+				if (!tree_model.get_iter(out tree_iter, selected_action_tree_path)) {
+					continue;
+				}
+				
+				tree_model.get_value(tree_iter, ActionListTreeStoreProxy.ColumnTypes.ACTION_REF, out action_descriptor_value);
+				var selected_action = action_descriptor_value.get_object() as GActionDescriptor;
+				
+				if (selected_action != null) {
+					selected_action_descriptors.add(selected_action);
+				}
 			}
+			currently_selected_actions = selected_action_descriptors;
 		}
 	}
 }

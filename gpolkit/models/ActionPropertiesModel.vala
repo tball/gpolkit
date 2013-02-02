@@ -24,7 +24,8 @@ namespace GPolkit.Models {
 		private BaseModel parent_model;
 		public ImplicitEditorModel implicit_editor_model;
 		public ExplicitOverviewModel explicit_overview_model;
-		public GActionDescriptor currently_selected_action { get; set; default = null; }
+		public Gee.List<GActionDescriptor> currently_selected_actions { get; set; default = null; }
+		public GActionDescriptor selected_explicit_action { get; set; default = null; }
 		public Gee.List<GActionDescriptor> explicit_actions { get; set; default = null; }
 		public string action_vendor {get; set; default = ""; }
 		public string action_vendor_url {get; set; default = ""; }
@@ -43,17 +44,17 @@ namespace GPolkit.Models {
 			explicit_overview_model = new ExplicitOverviewModel(this);
 			
 			// Init internal connections
-			this.notify["currently-selected-action"].connect(currently_selected_action_changed);
+			this.notify["currently-selected-actions"].connect(currently_selected_actions_changed);
 			
 			// Connect to child models
-			this.bind_property("currently-selected-action", explicit_overview_model, "currently-selected-action");
+			this.bind_property("currently-selected-actions", explicit_overview_model, "currently-selected-actions");
 			this.bind_property("explicit-actions", explicit_overview_model, "explicit-actions");
-			this.bind_property("currently-selected-action", implicit_editor_model, "edited-implicit-action");
+			explicit_overview_model.bind_property("selected-explicit-action", this, "selected_explicit_action");
 		}
 		
-		public void currently_selected_action_changed(Object sender, ParamSpec spec) {
-			if (currently_selected_action == null) {
-				stdout.printf("ActionPropertiesModel: selected action null\n");
+		public void currently_selected_actions_changed(Object sender, ParamSpec spec) {
+			if (currently_selected_actions == null) {
+				stdout.printf("ActionPropertiesModel: selected actions null\n");
 				action_vendor = "";
 				action_vendor_url = "";
 				action_description = "";
@@ -61,11 +62,18 @@ namespace GPolkit.Models {
 				return;
 			}
 			
-			action_description = currently_selected_action.description;
-			action_vendor = currently_selected_action.vendor;
-			action_vendor_url = currently_selected_action.vendor_url;
-			action_icon = currently_selected_action.icon_name;
-			action_is_valid = true;
+			if (currently_selected_actions.size == 1) {
+				var currently_selected_action = currently_selected_actions.first();
+				action_description = currently_selected_action.description;
+				action_vendor = currently_selected_action.vendor;
+				action_vendor_url = currently_selected_action.vendor_url;
+				action_icon = currently_selected_action.icon_name;
+				action_is_valid = true;
+				implicit_editor_model.edited_implicit_action = currently_selected_action;
+			}
+			else {
+				implicit_editor_model.edited_implicit_action = null;
+			}
 		}
 	}
 }
