@@ -92,8 +92,12 @@
 					continue;
 				}
 				
-				if (explicit_action.identity.contains(current_action.identity)) {
-					tree_selection.select_iter(tree_iter);
+				var explicit_identities = explicit_action.get_identities();
+				foreach(var explicit_identity in explicit_identities) {
+					if (explicit_identity == current_action.identity) {
+						tree_selection.select_iter(tree_iter);
+						break;
+					}
 				}
 				
 				select_explicit_action_members(tree_model, tree_selection, explicit_action, tree_iter);

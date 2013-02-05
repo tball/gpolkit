@@ -26,6 +26,7 @@ namespace GPolkit.Models {
 	public class ExplicitEditorWindowModel : BaseModel {
 		public UserListTreeStore selected_user_list_tree_store;
 		public UserListTreeStore not_selected_user_list_tree_store;
+		public Gee.List<GActionDescriptor> currently_selected_actions { get; set; default = null; }
 		public GActionDescriptor edited_explicit_action { get; set; default = null; }
 		public GActionDescriptor unsaved_explicit_action { get; set; default = null; }
 		public Gee.List<AccountProperties> account_properties { get; set; default = null; }
@@ -36,7 +37,7 @@ namespace GPolkit.Models {
 		public string unsaved_title { get; set; default = null; }
 		public ImplicitEditorModel implicit_editor_model;
 		
-		public signal void edited_explicit_action_changed();
+		public signal void edited_explicit_action_saved(GActionDescriptor saved_explicit_action);
 		
 		public ExplicitEditorWindowModel() {
 			init();
@@ -59,16 +60,20 @@ namespace GPolkit.Models {
 		}
 		
 		private void action_or_users_changed() {
-			if (unsaved_explicit_action == null || account_properties == null) {
-				title = "";
+			if (account_properties == null) {
 				return;
 			}
 			
-			var implicit_edited_action = new GActionDescriptor(null);
-			implicit_edited_action.copy_from(unsaved_explicit_action);
-			edited_explicit_action = implicit_edited_action;
-			
-			title = unsaved_explicit_action.title;
+			if (unsaved_explicit_action == null) {
+				unsaved_explicit_action = new GActionDescriptor(null);
+				
+				// Register selected authorizations
+				foreach(var selected_action in currently_selected_actions) {
+					unsaved_explicit_action.identity = unsaved_explicit_action.identity + selected_action.identity + ";";
+				}
+				
+				stdout.printf("identity: %s\n", unsaved_explicit_action.identity);
+			}
 			
 			// Search for selected and non selected users
 			var temp_selected_account_properties = new ArrayList<AccountProperties>();
@@ -83,13 +88,21 @@ namespace GPolkit.Models {
 			}
 			selected_account_properties = temp_selected_account_properties;
 			not_selected_account_properties = temp_not_selected_account_properties;
+			
+			var implicit_edited_action = new GActionDescriptor(null);
+			implicit_edited_action.copy_from(unsaved_explicit_action);
+
+			edited_explicit_action = implicit_edited_action;
+			title = unsaved_explicit_action.title;
 		}
 		
 		public void save_explicit_action() {
 			unsaved_explicit_action.copy_from(edited_explicit_action);
 			unsaved_explicit_action.title = unsaved_title;
+			unsaved_explicit_action.user_names = get_identity_str_from_user_props(selected_account_properties);			
 			
-			edited_explicit_action_changed();
+			
+			edited_explicit_action_saved(unsaved_explicit_action);
 		}
 		
 		public void users_added_to_explicit_action(Gee.List<string> user_names) {
@@ -148,6 +161,24 @@ namespace GPolkit.Models {
 			
 			selected_account_properties = new_selected_account_properties;
 			not_selected_account_properties = new_not_selected_account_properties;
+		}
+		
+		private string get_identity_str_from_user_props(Gee.List<AccountProperties> account_properties) {
+			if (account_properties == null) {
+				return "";
+			}
+			
+			var resulting_string = "";
+			foreach (var account_property in account_properties) {
+				if (account_property.account_type == AccountType.LINUX_USER) {
+					resulting_string += "unix-user:" + account_property.user_name + ";";
+				}
+				else {
+					resulting_string += "unix-group:" + account_property.user_name + ";";
+				}
+			}
+			
+			return resulting_string;
 		}
 	}
 }

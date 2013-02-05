@@ -83,6 +83,17 @@ namespace GPolkit.Common {
 				allow_inactive = ImplicitAuthorization.to_string(action_description.get_implicit_inactive());
 				allow_active = ImplicitAuthorization.to_string(action_description.get_implicit_active());
 			}
+			else {
+				vendor = "";
+				vendor_url = "";
+				identity = "";
+				icon_name = "";
+				description = "";
+				message = "";
+				allow_any = ImplicitAuthorization.to_string(ImplicitAuthorization.NOT_AUTHORIZED);
+				allow_inactive = ImplicitAuthorization.to_string(ImplicitAuthorization.NOT_AUTHORIZED);
+				allow_active = ImplicitAuthorization.to_string(ImplicitAuthorization.NOT_AUTHORIZED);
+			}
 		}
 
 		public string to_string() {
@@ -94,7 +105,7 @@ namespace GPolkit.Common {
 				return null;
 			}
 			
-			return identity.split(":");
+			return identity.split(";");
 		}
 
 		public static int get_authorization_index_from_string(string authorization_string) {

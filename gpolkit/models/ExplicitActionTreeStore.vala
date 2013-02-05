@@ -33,10 +33,10 @@ namespace GPolkit.Models {
 			set_column_types(new Type[] {typeof(string), typeof(GActionDescriptor)});
 		}
 
-		public void update_policies(Gee.List<GActionDescriptor>? currently_selected_actions, Gee.List<GActionDescriptor>? actions) {
+		public void update_policies(Gee.List<GActionDescriptor>? currently_selected_actions, Gee.List<GActionDescriptor>? explicit_actions) {
 			clear();
 			
-			if (currently_selected_actions == null || actions == null) {
+			if (currently_selected_actions == null || explicit_actions == null) {
 				return;
 			}
 			
@@ -45,12 +45,15 @@ namespace GPolkit.Models {
 			}
 
 			// Parse policies			
-			foreach (var action in actions) {
-				var action_exists_for_selected_actions = true;
+			foreach (var explicit_action in explicit_actions) {
+				var action_exists_for_selected_actions = false;
 				foreach (var currently_selected_action in currently_selected_actions) {
-					if (!action.identity.contains(currently_selected_action.identity)) {
-						action_exists_for_selected_actions = false;
-						break;
+					var explicit_action_identities = explicit_action.get_identities();
+					foreach(var explicit_action_identity in explicit_action_identities) {
+						if (explicit_action_identity == currently_selected_action.identity) {
+							action_exists_for_selected_actions = true;
+							break;
+						}
 					}
 				}
 				
@@ -58,14 +61,14 @@ namespace GPolkit.Models {
 					continue;
 				}
 
-				var allow_any_readable_string = ImplicitEditorModel.implicit_authorizations_string_array[GActionDescriptor.get_authorization_index_from_string(action.allow_any)];
-				var allow_active_readable_string = ImplicitEditorModel.implicit_authorizations_string_array[GActionDescriptor.get_authorization_index_from_string(action.allow_active)];
-				var allow_inactive_readable_string = ImplicitEditorModel.implicit_authorizations_string_array[GActionDescriptor.get_authorization_index_from_string(action.allow_inactive)];
+				var allow_any_readable_string = ImplicitEditorModel.implicit_authorizations_string_array[GActionDescriptor.get_authorization_index_from_string(explicit_action.allow_any)];
+				var allow_active_readable_string = ImplicitEditorModel.implicit_authorizations_string_array[GActionDescriptor.get_authorization_index_from_string(explicit_action.allow_active)];
+				var allow_inactive_readable_string = ImplicitEditorModel.implicit_authorizations_string_array[GActionDescriptor.get_authorization_index_from_string(explicit_action.allow_inactive)];
 				TreeIter root;
 				append(out root, null);
-				set(root, ColumnTypes.IDENTITY, "<b>" + action.title + "</b>, " + "(Allow any: " + allow_any_readable_string + ", Allow active: " + allow_active_readable_string + ", Allow inactive: " + allow_inactive_readable_string + ")\n" +
-												"<i>" + action.user_names + "</i>\n"
-												, ColumnTypes.OBJECT, action, -1);
+				set(root, ColumnTypes.IDENTITY, "<b>" + explicit_action.title + "</b>, " + "(Allow any: " + allow_any_readable_string + ", Allow active: " + allow_active_readable_string + ", Allow inactive: " + allow_inactive_readable_string + ")\n" +
+												"<i>" + explicit_action.user_names + "</i>\n"
+												, ColumnTypes.OBJECT, explicit_action, -1);
 			}
 		}
 	}
